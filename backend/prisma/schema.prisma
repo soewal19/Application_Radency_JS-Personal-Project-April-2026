@@ -1,0 +1,62 @@
+// Prisma ORM Schema for EventHub backend
+// Best practices: explicit mapping, cascading deletes, proper indexes
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  events       Event[]
+  participants EventParticipant[]
+
+  @@map("users")
+}
+
+model Event {
+  id                  String   @id @default(uuid())
+  title               String
+  description         String
+  date                DateTime
+  location            String
+  category            String   @default("meetup")
+  maxParticipants     Int      @default(50)   @map("max_participants")
+  currentParticipants Int      @default(0)    @map("current_participants")
+  organizerId         String   @map("organizer_id")
+  organizerName       String   @default("")   @map("organizer_name")
+  imageUrl            String?  @map("image_url")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt      @map("updated_at")
+
+  organizer    User               @relation(fields: [organizerId], references: [id])
+  participants EventParticipant[]
+
+  @@index([organizerId])
+  @@index([category])
+  @@index([date])
+  @@map("events")
+}
+
+model EventParticipant {
+  id       String   @id @default(uuid())
+  eventId  String   @map("event_id")
+  userId   String   @map("user_id")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@map("event_participants")
+}

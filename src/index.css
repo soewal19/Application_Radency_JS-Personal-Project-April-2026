@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 200 25% 35%;
+    --primary-foreground: 0 0% 98%;
+    --primary-active: 200 30% 28%;
+
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 25% 15%;
+
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 165 60% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 245 58% 51%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --font-heading: 'Roboto', sans-serif;
+    --font-body: 'Open Sans', sans-serif;
+
+    --gradient-primary: linear-gradient(135deg, hsl(245 58% 51%), hsl(280 60% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(165 60% 40%), hsl(200 60% 45%));
+    --shadow-card: 0 1px 3px hsl(220 25% 10% / 0.06), 0 6px 16px hsl(220 25% 10% / 0.04);
+    --shadow-elevated: 0 4px 12px hsl(220 25% 10% / 0.08), 0 20px 40px hsl(220 25% 10% / 0.06);
+  }
+
+  .dark {
+    --background: 220 25% 6%;
+    --foreground: 220 14% 92%;
+
+    --card: 220 20% 10%;
+    --card-foreground: 220 14% 92%;
+
+    --popover: 220 20% 10%;
+    --popover-foreground: 220 14% 92%;
+
+    --primary: 200 25% 45%;
+    --primary-foreground: 0 0% 98%;
+    --primary-active: 200 30% 38%;
+
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 220 14% 92%;
+
+    --muted: 220 20% 14%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 165 50% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 245 58% 62%;
+
+    --shadow-card: 0 1px 3px hsl(0 0% 0% / 0.2), 0 6px 16px hsl(0 0% 0% / 0.15);
+    --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.25), 0 20px 40px hsl(0 0% 0% / 0.2);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Electric Card Effect */
+@property --electric-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.electric-border {
+  background: conic-gradient(
+    from var(--electric-angle),
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(245 80% 70%),
+    hsl(var(--primary))
+  );
+  border-radius: var(--radius);
+  animation: electric-spin 3s linear infinite;
+  filter: blur(4px);
+}
+
+@keyframes electric-spin {
+  to {
+    --electric-angle: 360deg;
+  }
+}
+
+.electric-card-wrapper:hover .electric-border {
+  filter: blur(6px);
+}
+
+/* Parallax 3D Scene */
+.parallax-scene {
+  transform-style: preserve-3d;
+}
+
+.parallax-layer {
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+.parallax-scene:hover .parallax-layer:nth-child(1) {
+  transform: translateZ(-300px) scale(1.3)
+    translate(
+      calc(var(--mouse-x, 0) * -20px),
+      calc(var(--mouse-y, 0) * -15px)
+    );
+}
+
+.parallax-scene:hover .parallax-layer:nth-child(2) {
+  transform: translateZ(-150px) scale(1.15)
+    translate(
+      calc(var(--mouse-x, 0) * -10px),
+      calc(var(--mouse-y, 0) * -8px)
+    );
+}
+
+.parallax-scene:hover .parallax-layer:nth-child(4) {
+  transform: translateZ(0)
+    translate(
+      calc(var(--mouse-x, 0) * 15px),
+      calc(var(--mouse-y, 0) * 10px)
+    );
+}
