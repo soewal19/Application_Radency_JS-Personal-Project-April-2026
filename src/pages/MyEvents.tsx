@@ -12,6 +12,15 @@ import {
   Camera, Mail, Clock, Settings, ChevronRight, TrendingUp, BarChart3,
   ChevronLeft, List, LayoutGrid
 } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -68,6 +77,53 @@ const MyEvents = () => {
   const [editEmail, setEditEmail] = useState(user?.email ?? '');
   const [calendarView, setCalendarView] = useState<CalendarView>('monthly');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [createdPage, setCreatedPage] = useState(1);
+  const [registeredPage, setRegisteredPage] = useState(1);
+
+  const EVENTS_PER_PAGE = 8;
+
+  const buildPageNums = (current: number, total: number): (number | '...')[] => {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: (number | '...')[] = [1];
+    if (current > 3) pages.push('...');
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    if (current < total - 2) pages.push('...');
+    pages.push(total);
+    return pages;
+  };
+
+  const renderPagination = (currentPage: number, totalPages: number, onChange: (p: number) => void, total: number) => {
+    if (total <= EVENTS_PER_PAGE) return null;
+    const start = (currentPage - 1) * EVENTS_PER_PAGE + 1;
+    const end = Math.min(currentPage * EVENTS_PER_PAGE, total);
+    return (
+      <div className="mt-4 flex flex-col items-center gap-2">
+        <p className="text-xs text-muted-foreground">Showing {start}–{end} of {total} events</p>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); if (currentPage > 1) onChange(currentPage - 1); }}
+                aria-disabled={currentPage === 1} className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''} />
+            </PaginationItem>
+            {buildPageNums(currentPage, totalPages).map((page, i) =>
+              page === '...' ? (
+                <PaginationItem key={`e-${i}`}><PaginationEllipsis /></PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink href="#" isActive={page === currentPage}
+                    onClick={(e) => { e.preventDefault(); onChange(page as number); }}>{page}</PaginationLink>
+                </PaginationItem>
+              )
+            )}
+            <PaginationItem>
+              <PaginationNext href="#" onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) onChange(currentPage + 1); }}
+                aria-disabled={currentPage === totalPages} className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''} />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    );
+  };
 
   useEffect(() => { fetchMyEvents(); }, []);
   useEffect(() => { if (user) { setEditName(user.name); setEditEmail(user.email); } }, [user]);
@@ -398,7 +454,14 @@ const MyEvents = () => {
                 <Button variant="link" size="sm" onClick={() => navigate('/events/create')}>Create your first event</Button>
               </div>
             ) : (
-              <div className="space-y-2">{createdEvents.map((e, i) => renderEventRow(e, i, true))}</div>
+              <>
+                <div className="space-y-2">
+                  {createdEvents
+                    .slice((createdPage - 1) * EVENTS_PER_PAGE, createdPage * EVENTS_PER_PAGE)
+                    .map((e, i) => renderEventRow(e, i, true))}
+                </div>
+                {renderPagination(createdPage, Math.ceil(createdEvents.length / EVENTS_PER_PAGE), setCreatedPage, createdEvents.length)}
+              </>
             )}
           </TabsContent>
           <TabsContent value="registered">
@@ -410,7 +473,14 @@ const MyEvents = () => {
                 <Button variant="link" size="sm" onClick={() => navigate('/events')}>Browse events</Button>
               </div>
             ) : (
-              <div className="space-y-2">{registeredEvents.map((e, i) => renderEventRow(e, i, false))}</div>
+              <>
+                <div className="space-y-2">
+                  {registeredEvents
+                    .slice((registeredPage - 1) * EVENTS_PER_PAGE, registeredPage * EVENTS_PER_PAGE)
+                    .map((e, i) => renderEventRow(e, i, false))}
+                </div>
+                {renderPagination(registeredPage, Math.ceil(registeredEvents.length / EVENTS_PER_PAGE), setRegisteredPage, registeredEvents.length)}
+              </>
             )}
           </TabsContent>
         </Tabs>

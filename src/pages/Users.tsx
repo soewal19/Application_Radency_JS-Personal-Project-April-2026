@@ -1,13 +1,24 @@
 /**
  * @module Users Page
- * @description Displays registered users with skeleton loading
+ * @description Displays registered users with skeleton loading and pagination
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUsersStore } from '@/store/useUsersStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users as UsersIcon, Mail, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+
+const PAGE_SIZE = 10;
 
 const UserSkeleton = () => (
   <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
@@ -20,12 +31,29 @@ const UserSkeleton = () => (
   </div>
 );
 
+const buildPageNumbers = (current: number, total: number): (number | '...')[] => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | '...')[] = [1];
+  if (current > 3) pages.push('...');
+  for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+};
+
 const Users = () => {
   const { users, isLoading, fetchUsers } = useUsersStore();
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchUsers();
+    setCurrentPage(1);
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
+  const pageUsers = users.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const start = users.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(currentPage * PAGE_SIZE, users.length);
 
   return (
     <div>
@@ -35,14 +63,16 @@ const Users = () => {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Users</h1>
-          <p className="text-sm text-muted-foreground">{users.length} registered members</p>
+          <p className="text-sm text-muted-foreground">
+            {isLoading ? 'Loading...' : `${users.length} registered members`}
+          </p>
         </div>
       </div>
 
       <div className="space-y-3">
         {isLoading
-          ? Array.from({ length: 8 }).map((_, i) => <UserSkeleton key={i} />)
-          : users.map((user, i) => (
+          ? Array.from({ length: PAGE_SIZE }).map((_, i) => <UserSkeleton key={i} />)
+          : pageUsers.map((user, i) => (
               <motion.div
                 key={user.id}
                 initial={{ opacity: 0, x: -12 }}
@@ -70,6 +100,53 @@ const Users = () => {
               </motion.div>
             ))}
       </div>
+
+      {!isLoading && users.length > PAGE_SIZE && (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <p className="text-xs text-muted-foreground">
+            Showing {start}–{end} of {users.length} users
+          </p>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(p => p - 1); }}
+                  aria-disabled={currentPage === 1}
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+
+              {buildPageNumbers(currentPage, totalPages).map((page, i) =>
+                page === '...' ? (
+                  <PaginationItem key={`ellipsis-${i}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === currentPage}
+                      onClick={(e) => { e.preventDefault(); setCurrentPage(page as number); }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) setCurrentPage(p => p + 1); }}
+                  aria-disabled={currentPage === totalPages}
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 };
