@@ -1,5 +1,15 @@
 # EventHub — Event Management Platform
 
+## 🌐 Live Demo
+
+| Service | URL |
+|---|---|
+| **Frontend** | https://application-frontend-fjji.onrender.com |
+| **Backend API** | https://application-backend-54iw.onrender.com |
+| **Swagger Docs** | https://application-backend-54iw.onrender.com/api/docs |
+
+> ⚠️ Free-tier Render services may take ~30 seconds to wake up after inactivity.
+
 ## 📋 About
 
 **EventHub** is a full-stack event management platform built with React and NestJS. The application allows users to create, edit, and discover events, register for them, and track activity in real time via WebSocket.
@@ -11,7 +21,7 @@
 - 🔐 **Authentication** — JWT (access 1h + refresh 7d), bcrypt, automatic token refresh
 - 📊 **Analytics** — activity charts (Recharts) in the user dashboard
 - 🖼 **Profile** — avatar upload, profile editing
-- ⚡ **Real-time** — Socket.IO notifications with JWT verification
+- ⚡ **Real-time** — Socket.IO notifications with JWT verification + keepalive ping (every 25s)
 - 📱 **Responsive** — mobile menu, skeleton loading, lazy loading
 - 📚 **Swagger** — auto-generated API documentation at `/api/docs`
 
@@ -108,6 +118,32 @@ The project includes a `render.yaml` Blueprint for one-click deployment.
 - CORS whitelist for allowed origins
 - Input validation on both client (Zod) and server (class-validator)
 - Passwords hashed with bcrypt (12 rounds)
+
+## ⚡ WebSocket Keepalive (Ping)
+
+The frontend includes a built-in Socket.IO keepalive mechanism (`src/services/socket.ts`).
+After connecting, the client automatically sends a `ping` event every **25 seconds** to prevent the connection from being dropped by idle timeouts (important for free-tier hosting).
+
+The server responds with a `pong` event confirming the connection is alive.
+
+```
+Client ──ping──▶ Server
+Client ◀──pong── Server
+(every 25 seconds)
+```
+
+## 🔄 CI/CD
+
+Deployment scripts are available in the `ci_cd/` folder:
+
+| Script | Description |
+|---|---|
+| `ci_cd/deploy-render.sh` | Trigger a Render.com service redeploy via API |
+| `ci_cd/deploy-github.sh` | Push to GitHub and optionally trigger Render deploys |
+
+See [`ci_cd/README.md`](ci_cd/README.md) for usage instructions.
+
+GitHub Actions workflows are in `.github/workflows/`.
 
 ## 📊 SOLID Principles
 

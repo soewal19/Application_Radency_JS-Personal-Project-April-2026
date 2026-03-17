@@ -1,19 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
-
-@Entity('users')
+/** User entity — Prisma-managed. TypeORM decorators removed (not used). */
 export class User {
-  @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ unique: true })
   email: string;
-
-  @Column()
   name: string;
-
-  @Column()
   password: string;
-
-  @CreateDateColumn()
   createdAt: Date;
 }
