@@ -50,7 +50,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
-        sync: false # Set manually after frontend deploys
+        value: "https://application-frontend-fjji.onrender.com,https://application-backend-54iw.onrender.com,http://localhost:5173,http://localhost:3000"
 
   # Frontend (React SPA via static site)
   - type: web
@@ -72,13 +72,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: eventhub-backend
-          property: hostport
-        # Will be set as https://<backend-host>/api
+        value: "https://application-backend-54iw.onrender.com/api"
       - key: VITE_SOCKET_URL
-        fromService:
-          type: web
-          name: eventhub-backend
-          property: hostport
+        value: "https://application-backend-54iw.onrender.com"

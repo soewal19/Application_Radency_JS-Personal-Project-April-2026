@@ -10,6 +10,8 @@ export const ALLOWED_ORIGINS: readonly string[] = [
   'http://localhost:8080',
   'https://events-app.example.com',
   'https://api.events-app.example.com',
+  'https://application-frontend-fjji.onrender.com',
+  'https://application-backend-54iw.onrender.com',
 ] as const;
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
