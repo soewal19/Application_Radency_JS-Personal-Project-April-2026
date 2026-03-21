@@ -30,6 +30,7 @@ const EditEvent = lazy(() => import('@/pages/EditEvent'));
 const MyEvents = lazy(() => import('@/pages/MyEvents'));
 const Users = lazy(() => import('@/pages/Users'));
 const Help = lazy(() => import('@/pages/Help'));
+const AIAssistant = lazy(() => import('@/pages/AIAssistant'));
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
 const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
 
@@ -147,6 +148,14 @@ const router = createBrowserRouter([
             element: (
               <Suspense fallback={<InlineLoading />}>
                 <Users />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/assistant',
+            element: (
+              <Suspense fallback={<InlineLoading />}>
+                <AIAssistant />
               </Suspense>
             ),
           },

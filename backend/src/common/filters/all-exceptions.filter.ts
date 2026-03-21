@@ -11,13 +11,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
       ? exception.getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = exception instanceof HttpException
+    const messageResponse = exception instanceof HttpException
       ? exception.getResponse()
       : 'Внутренняя ошибка сервера';
 
+    const message = typeof messageResponse === 'string'
+      ? messageResponse
+      : (messageResponse && typeof messageResponse === 'object' && 'message' in messageResponse
+        ? (messageResponse as { message?: unknown }).message
+        : messageResponse);
+
     response.status(status).json({
       statusCode: status,
-      message: typeof message === 'string' ? message : (message as any).message || message,
+      message,
       timestamp: new Date().toISOString(),
     });
   }

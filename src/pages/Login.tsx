@@ -58,7 +58,11 @@ type ViewMode = 'login' | 'register' | 'forgot';
 const Login = () => {
   const [view, setView] = useState<ViewMode>('login');
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ 
+    name: '', 
+    email: TEST_ACCOUNT.email, 
+    password: TEST_ACCOUNT.password 
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [resetSent, setResetSent] = useState(false);
   const { login, register, isLoading } = useAuthStore();

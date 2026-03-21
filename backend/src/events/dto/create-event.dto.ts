@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsNumber, Min, Max, MinLength, MaxLength, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsNumber, Min, Max, MinLength, MaxLength, IsDateString, IsOptional, IsArray, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum EventCategory {
@@ -42,4 +42,14 @@ export class CreateEventDto {
   @Min(2, { message: 'At least 2 participants required' })
   @Max(10000, { message: 'Maximum 10,000 participants' })
   maxParticipants: number;
+
+  @ApiProperty({ example: ['Tech', 'Music'], required: false })
+  @IsOptional()
+  @IsArray({ message: 'Tags must be an array of strings' })
+  @ArrayMaxSize(5, { message: 'Maximum 5 tags allowed' })
+  @ArrayUnique({ message: 'Tags must be unique' })
+  @IsString({ each: true, message: 'Each tag must be a string' })
+  @MinLength(1, { each: true, message: 'Tags cannot be empty' })
+  @MaxLength(30, { each: true, message: 'Tags must be under 30 characters' })
+  tags?: string[];
 }

@@ -11,6 +11,7 @@ export interface IEvent {
   date: string;
   location: string;
   category: EventCategory;
+  tags: string[];
   maxParticipants: number;
   currentParticipants: number;
   organizerId: string;
@@ -35,6 +36,7 @@ export interface CreateEventDto {
   date: string;
   location: string;
   category: EventCategory;
+  tags?: string[];
   maxParticipants: number;
 }
 
@@ -53,6 +55,7 @@ export interface EventsQueryParams {
   limit: number;
   search?: string;
   category?: EventCategory;
+  tags?: string[];
   sortBy?: 'date' | 'title' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
 }

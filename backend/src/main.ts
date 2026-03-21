@@ -25,11 +25,18 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // CORS with whitelist
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:8080,http://localhost:3000').split(',');
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   });
 
   // Global validation pipe
@@ -65,6 +72,7 @@ async function bootstrap() {
     )
     .addTag('auth', 'User registration and authentication')
     .addTag('events', 'Event CRUD, join/leave, pagination & filtering')
+    .addTag('ai', 'AI assistant (tool calling) for event discovery')
     .addServer(`http://localhost:${process.env.PORT || 3000}`, 'Local Development')
     .build();
 

@@ -3,12 +3,13 @@
  * @description Authentication business logic with access + refresh tokens
  */
 
-import { Injectable, ConflictException, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, Logger, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -56,6 +57,32 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    this.logger.log(`Updating profile for user: ${userId}`);
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: dto.name,
+        email: dto.email,
+        avatar: dto.avatar,
+      },
+    });
+
+    return {
+      id: updated.id,
+      email: updated.email,
+      name: updated.name,
+      avatar: updated.avatar,
+      createdAt: updated.createdAt,
+    };
+  }
+
   /**
    * Refresh access token using a valid refresh token
    */
@@ -86,10 +113,10 @@ export class AuthService {
     }
   }
 
-  private generateTokens(user: { id: string; email: string; name: string; createdAt: Date }) {
+  private generateTokens(user: { id: string; email: string; name: string; avatar?: string | null; createdAt: Date }) {
     const payload = { sub: user.id, email: user.email };
     return {
-      user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
+      user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar, createdAt: user.createdAt },
       accessToken: this.jwtService.sign(payload, { expiresIn: '1h' }),
       refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
     };
