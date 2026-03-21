@@ -4,7 +4,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import { CalendarDays, MapPin, Users, Zap } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Zap, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { IEvent } from '@/types/event';
 import { Badge } from '@/components/ui/badge';
@@ -72,7 +72,22 @@ const EventCard = ({ event, index }: EventCardProps) => {
               <Users className="h-3.5 w-3.5" />
               {event.currentParticipants}/{event.maxParticipants}
             </span>
+            <span className="flex items-center gap-1">
+              <User className="h-3.5 w-3.5" />
+              {event.organizerName || 'Organizer'}
+            </span>
           </div>
+
+          {event.tags?.length ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {event.tags.slice(0, 5).map((tag) => (
+                <Badge key={tag} variant="outline" className="text-[10px]">{tag}</Badge>
+              ))}
+              {event.tags.length > 5 && (
+                <span className="text-[10px] text-muted-foreground">+{event.tags.length - 5} more</span>
+              )}
+            </div>
+          ) : null}
 
           {/* Register link */}
           <div className="mt-4 flex items-center justify-between border-t border-border pt-3">

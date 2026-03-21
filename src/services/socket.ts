@@ -64,16 +64,50 @@ class SocketService {
     this.socket = null;
   }
 
-  on(event: EventSocketAction, callback: (data: IEvent) => void): void {
+  on(event: EventSocketAction | string, callback: (...args: any[]) => void): void {
     this.socket?.on(event, callback);
   }
 
-  off(event: EventSocketAction): void {
+  off(event: EventSocketAction | string): void {
     this.socket?.off(event);
   }
 
-  emit(event: EventSocketAction, data: unknown): void {
-    this.socket?.emit(event, data);
+  emit(event: EventSocketAction | string, data?: unknown): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (!this.socket) {
+        return reject(new Error('Socket not initialized. Please log in again.'));
+      }
+
+      if (!this.socket.connected) {
+        // If not connected, wait up to 5 seconds for it to connect
+        let attempts = 0;
+        const checkConnection = setInterval(() => {
+          if (this.socket?.connected) {
+            clearInterval(checkConnection);
+            this.performEmit(event, data, resolve, reject);
+          } else if (attempts > 50) { // 5 seconds
+            clearInterval(checkConnection);
+            reject(new Error('Socket not connected after timeout'));
+          }
+          attempts++;
+        }, 100);
+        return;
+      }
+
+      this.performEmit(event, data, resolve, reject);
+    });
+  }
+
+  private performEmit(
+    event: string, 
+    data: any, 
+    resolve: (val: any) => void, 
+    reject: (err: Error) => void
+  ) {
+    this.socket?.emit(event, data, (response: any) => {
+      if (response?.error) reject(new Error(response.error));
+      else resolve(response?.data || response);
+    });
   }
 
   get isConnected(): boolean {

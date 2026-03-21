@@ -157,13 +157,22 @@ class ApiService {
   async getEvents(params: EventsQueryParams): Promise<EventsListResponse> {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined) searchParams.set(key, String(value));
+      if (value === undefined || value === null) return;
+      if (key === 'tags' && Array.isArray(value)) {
+        searchParams.set(key, value.join(','));
+        return;
+      }
+      searchParams.set(key, String(value));
     });
     return this.request<EventsListResponse>(`/events?${searchParams}`);
   }
 
   async getEvent(id: string): Promise<IEvent> {
     return this.request<IEvent>(`/events/${encodeURIComponent(id)}`);
+  }
+
+  async getTags(): Promise<string[]> {
+    return this.request<string[]>(`/events/tags`);
   }
 
   async createEvent(dto: CreateEventDto): Promise<IEvent> {
@@ -192,6 +201,20 @@ class ApiService {
     await this.request(`/events/${encodeURIComponent(id)}/leave`, { method: 'POST' });
   }
 
+  async registerSomeone(eventId: string, email: string): Promise<IEvent> {
+    return this.request<IEvent>(`/events/${encodeURIComponent(eventId)}/register-someone`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async updateProfile(data: { name?: string; email?: string; avatar?: string }): Promise<IUser> {
+    return this.request<IUser>('/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Password Recovery
   async requestPasswordReset(email: string): Promise<void> {
     await this.request('/auth/forgot-password', {
@@ -213,6 +236,17 @@ class ApiService {
       if (value !== undefined) searchParams.set(key, String(value));
     });
     return this.request<EventsListResponse>(`/events/my?${searchParams}`);
+  }
+
+  async checkHealth(): Promise<{ status: string; database: string }> {
+    return this.request<{ status: string; database: string }>('/health');
+  }
+
+  async aiQuery(query: string, context?: string): Promise<{ assistant: string; toolCall: any }> {
+    return this.request<{ assistant: string; toolCall: any }>('/ai/query', {
+      method: 'POST',
+      body: JSON.stringify({ query, context }),
+    });
   }
 }
 

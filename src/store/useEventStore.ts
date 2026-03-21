@@ -10,7 +10,7 @@ import { apiService } from '@/services/api';
 import { socketService } from '@/services/socket';
 import { logger } from '@/lib/logger';
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 6;
 
 /** Mock data for demo mode */
 const generateMockEvents = (): IEvent[] => {
@@ -27,21 +27,28 @@ const generateMockEvents = (): IEvent[] => {
   ];
   const locations = ['New York', 'San Francisco', 'Online', 'London', 'Berlin', 'Tokyo'];
   const organizers = ['Alice', 'Bob', 'Charlie', 'Diana', 'Edward'];
+  const tagsPool = ['Tech', 'Art', 'Business', 'Music', 'Design', 'Health', 'Education'];
 
-  return titles.map((title, i) => ({
-    id: `evt-${i + 1}`,
-    title,
-    description: `Join us at ${title}! We will discuss the latest trends and best practices. Expect workshops, networking and great speakers.`,
-    date: new Date(2026, 3 + Math.floor(i / 5), 1 + (i * 3) % 28, 10 + (i % 8)).toISOString(),
-    location: locations[i % locations.length],
-    category: categories[i % categories.length],
-    maxParticipants: 50 + i * 10,
-    currentParticipants: Math.floor(Math.random() * 40),
-    organizerId: `user-${(i % 5) + 1}`,
-    organizerName: organizers[i % 5],
-    createdAt: new Date(2026, 2, 1 + i).toISOString(),
-    updatedAt: new Date(2026, 2, 1 + i).toISOString(),
-  }));
+  return titles.map((title, i) => {
+    const tagCount = 1 + (i % 3);
+    const eventTags = Array.from({ length: tagCount }, (_, idx) => tagsPool[(i + idx) % tagsPool.length]);
+
+    return {
+      id: `evt-${i + 1}`,
+      title,
+      description: `Join us at ${title}! We will discuss the latest trends and best practices. Expect workshops, networking and great speakers.`,
+      date: new Date(2026, 3 + Math.floor(i / 5), 1 + (i * 3) % 28, 10 + (i % 8)).toISOString(),
+      location: locations[i % locations.length],
+      category: categories[i % categories.length],
+      tags: eventTags,
+      maxParticipants: 50 + i * 10,
+      currentParticipants: Math.floor(Math.random() * 40),
+      organizerId: `user-${(i % 5) + 1}`,
+      organizerName: organizers[i % 5],
+      createdAt: new Date(2026, 2, 1 + i).toISOString(),
+      updatedAt: new Date(2026, 2, 1 + i).toISOString(),
+    };
+  });
 };
 
 const ALL_MOCK_EVENTS = generateMockEvents();
@@ -57,17 +64,21 @@ interface EventState {
   error: string | null;
   searchQuery: string;
   categoryFilter: EventCategory | undefined;
+  tagFilters: string[];
 
   fetchEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
   fetchMyEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
   fetchEvent: (id: string) => Promise<void>;
   createEvent: (event: Omit<IEvent, 'id' | 'organizerId' | 'organizerName' | 'currentParticipants' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateEvent: (id: string, data: Partial<IEvent>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   joinEvent: (id: string) => Promise<void>;
   leaveEvent: (id: string) => Promise<void>;
+  registerSomeone: (eventId: string, email: string) => Promise<void>;
   setPage: (page: number) => void;
   setSearch: (query: string) => void;
   setCategoryFilter: (category: EventCategory | undefined) => void;
+  setTagFilters: (tags: string[]) => void;
   setupSocketListeners: () => void;
 }
 
@@ -82,6 +93,7 @@ export const useEventStore = create<EventState>()((set, get) => ({
   error: null,
   searchQuery: '',
   categoryFilter: undefined,
+  tagFilters: [],
 
   fetchEvents: async (params) => {
     set({ isLoading: true, error: null });
@@ -93,6 +105,7 @@ export const useEventStore = create<EventState>()((set, get) => ({
         limit: PAGE_SIZE,
         search: params?.search ?? (searchQuery || undefined),
         category: params?.category ?? categoryFilter,
+        tags: params?.tags ?? get().tagFilters,
       });
       set({
         events: response.data,
@@ -113,6 +126,10 @@ export const useEventStore = create<EventState>()((set, get) => ({
       }
       if (cat) {
         filtered = filtered.filter(e => e.category === cat);
+      }
+      const tags = params?.tags ?? get().tagFilters;
+      if (tags && tags.length) {
+        filtered = filtered.filter(e => e.tags?.some((t) => tags.includes(t)));
       }
       const currentPage = params?.page ?? page;
       const start = (currentPage - 1) * PAGE_SIZE;
@@ -153,36 +170,108 @@ export const useEventStore = create<EventState>()((set, get) => ({
   createEvent: async (eventData) => {
     set({ isLoading: true });
     logger.store('Events', 'createEvent', { title: eventData.title });
-    const newEvent: IEvent = {
-      ...eventData,
-      id: `evt-${Date.now()}`,
-      organizerId: '1',
-      organizerName: 'You',
-      currentParticipants: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    ALL_MOCK_EVENTS.unshift(newEvent);
-    set({ isLoading: false });
-    get().fetchEvents({ page: 1 });
+    try {
+      const created = await socketService.emit('createEvent', eventData);
+      // Ensure UI reflects the newest data
+      get().fetchEvents({ page: 1 });
+      set({ isLoading: false });
+      return created;
+    } catch (error) {
+      // Fallback to mock mode
+      const newEvent: IEvent = {
+        ...eventData,
+        id: `evt-${Date.now()}`,
+        organizerId: '1',
+        organizerName: 'You',
+        tags: eventData.tags ?? [],
+        currentParticipants: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      ALL_MOCK_EVENTS.unshift(newEvent);
+      set({ isLoading: false });
+      get().fetchEvents({ page: 1 });
+      return newEvent;
+    }
+  },
+
+  updateEvent: async (id: string, data: Partial<IEvent>) => {
+    set({ isLoading: true });
+    try {
+      const updated = await socketService.emit('updateEvent', { id, data });
+      set((state) => ({
+        events: state.events.map((e) => (e.id === updated.id ? updated : e)),
+        currentEvent: state.currentEvent?.id === updated.id ? updated : state.currentEvent,
+      }));
+      set({ isLoading: false });
+      return updated;
+    } catch {
+      // fallback: update mock
+      const idx = ALL_MOCK_EVENTS.findIndex((e) => e.id === id);
+      if (idx !== -1) {
+        ALL_MOCK_EVENTS[idx] = { ...ALL_MOCK_EVENTS[idx], ...data };
+      }
+      get().fetchEvents();
+      set({ isLoading: false });
+    }
   },
 
   deleteEvent: async (id: string) => {
-    const idx = ALL_MOCK_EVENTS.findIndex(e => e.id === id);
-    if (idx !== -1) ALL_MOCK_EVENTS.splice(idx, 1);
-    get().fetchEvents();
+    set({ isLoading: true });
+    try {
+      await socketService.emit('deleteEvent', id);
+      set((state) => ({
+        events: state.events.filter((e) => e.id !== id),
+        currentEvent: state.currentEvent?.id === id ? null : state.currentEvent,
+      }));
+    } catch {
+      const idx = ALL_MOCK_EVENTS.findIndex(e => e.id === id);
+      if (idx !== -1) ALL_MOCK_EVENTS.splice(idx, 1);
+    } finally {
+      set({ isLoading: false });
+      get().fetchEvents();
+    }
   },
 
   joinEvent: async (id: string) => {
-    const evt = ALL_MOCK_EVENTS.find(e => e.id === id);
-    if (evt) evt.currentParticipants++;
-    get().fetchEvent(id);
+    set({ isLoading: true });
+    try {
+      await socketService.emit('joinEvent', id);
+    } catch {
+      const evt = ALL_MOCK_EVENTS.find(e => e.id === id);
+      if (evt) evt.currentParticipants++;
+    } finally {
+      set({ isLoading: false });
+      get().fetchEvent(id);
+    }
   },
 
   leaveEvent: async (id: string) => {
-    const evt = ALL_MOCK_EVENTS.find(e => e.id === id);
-    if (evt && evt.currentParticipants > 0) evt.currentParticipants--;
-    get().fetchEvent(id);
+    set({ isLoading: true });
+    try {
+      await socketService.emit('leaveEvent', id);
+    } catch {
+      const evt = ALL_MOCK_EVENTS.find(e => e.id === id);
+      if (evt && evt.currentParticipants > 0) evt.currentParticipants--;
+    } finally {
+      set({ isLoading: false });
+      get().fetchEvent(id);
+    }
+  },
+
+  registerSomeone: async (eventId: string, email: string) => {
+    set({ isLoading: true });
+    try {
+      await socketService.emit('registerSomeone', { eventId, email });
+    } catch (error) {
+      // In mock mode we can't easily register by email, so we just increment
+      const evt = ALL_MOCK_EVENTS.find(e => e.id === eventId);
+      if (evt) evt.currentParticipants++;
+      throw error; // Re-throw so the UI can show error toast
+    } finally {
+      set({ isLoading: false });
+      get().fetchEvent(eventId);
+    }
   },
 
   setPage: (page: number) => {
@@ -198,6 +287,11 @@ export const useEventStore = create<EventState>()((set, get) => ({
   setCategoryFilter: (category) => {
     set({ categoryFilter: category, page: 1 });
     get().fetchEvents({ category, page: 1 });
+  },
+
+  setTagFilters: (tags) => {
+    set({ tagFilters: tags, page: 1 });
+    get().fetchEvents({ tags, page: 1 });
   },
 
   setupSocketListeners: () => {

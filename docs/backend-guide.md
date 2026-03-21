@@ -108,3 +108,4 @@ npx prisma db seed
 - `JWT_SECRET` — JWT signing secret
 - `ALLOWED_ORIGINS` — CORS whitelist
 - `PORT` — Server port (default 3000)
+- `OPENAI_API_KEY` — Optional OpenAI API key. When set, the AI assistant endpoint (`POST /api/ai/query`) uses OpenAI function-calling tools for event discovery. When unset, the endpoint returns a safe stubbed response for local/dev testing.

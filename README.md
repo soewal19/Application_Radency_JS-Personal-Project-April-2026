@@ -19,11 +19,37 @@
 - 🎫 **Events** — create, edit, delete with pagination (15/page), search, and category filtering
 - 👥 **Participants** — join/leave events with atomic transactions (Prisma)
 - 🔐 **Authentication** — JWT (access 1h + refresh 7d), bcrypt, automatic token refresh
-- 📊 **Analytics** — activity charts (Recharts) in the user dashboard
-- 🖼 **Profile** — avatar upload, profile editing
-- ⚡ **Real-time** — Socket.IO notifications with JWT verification + keepalive ping (every 25s)
-- 📱 **Responsive** — mobile menu, skeleton loading, lazy loading
-- 📚 **Swagger** — auto-generated API documentation at `/api/docs`
+- 🤖 **AI Swarm Orchestrator** — Advanced Multi-Agent architecture with specialized agents (Search, Management, Analytics) and an "Event Concierge" for every event page.
+- ⚡ **Real-time WebSockets** — High-performance Socket.IO integration for all interactive actions (join, create, delete, AI chat) with automatic reconnection and heartbeat.
+- 🪵 **DevOps Logging** — Structured frontend logging system with levels (INFO, WARN, ERROR), contextual tags, and production-ready filtering.
+- 📊 **Analytics** — Activity charts (Recharts) and real-time system health monitoring (DB/WS status indicators).
+- 📅 **Calendar Views** — Monthly and Weekly views with automatic event coloring by the first tag.
+-  **Swagger** — Auto-generated API documentation at `/api/docs`
+- 🧪 **E2E Testing** — Comprehensive test suite for AI, Events lifecycle, and Groq Cloud connectivity.
+
+### AI Swarm Orchestrator (Multi-Agent Architecture)
+
+The project implements a cutting-edge **Multi-Agent Swarm** architecture for the AI Assistant:
+- **Master Orchestrator**: Analyzes user intent and delegates tasks to specialized agents using a router pattern.
+- **Specialized Agents**: 
+    - `Discovery Scout`: Expert in searching and filtering events.
+    - `Event Manager`: Handles creation, updates, and participant management.
+    - `Data Insight`: Provides real-time statistics and event analytics.
+- **Event Concierge**: Every event details page features a personal AI assistant that knows everything about that specific event (location, organizer, availability).
+- **Parallel Tool Calling**: Supports executing multiple tools simultaneously (e.g., "Create a meeting and show my stats").
+- **MLOps Resiliency**: 
+    - **Model Rotation**: Automatic fallback between a pool of models (`llama-3.3-70b` → `llama-3.1-70b` → `llama-3.1-8b`) when hitting rate limits (Error 429).
+    - **Hierarchical Fallback**: If all Groq models are exhausted, the system automatically routes requests to OpenAI (`gpt-4o-mini`).
+    - **Real-time Metadata**: The UI displays the active model and current token limit status for full transparency.
+- **No Hallucinations**: Uses **Function Calling** to interact with the live PostgreSQL database via WebSockets.
+
+### High-Performance WebSockets
+
+To ensure maximum responsiveness, the application has moved beyond traditional REST for interactive actions:
+- **Bi-directional Communication**: Creation, joining, and AI chatting now happen over **Socket.IO**.
+- **Low Latency**: Reduced HTTP overhead by reusing the same persistent connection for multiple actions.
+- **System Health Monitoring**: Real-time indicators in the Header show the status of the Database and WebSocket connection (Green/Red) with a "System Ready" pulse.
+- **Wait-and-Retry**: The frontend service includes a 5-second buffer to handle temporary connection drops without failing user actions.
 
 ### Tech Stack
 
@@ -31,8 +57,10 @@
 |---|---|
 | React 18, Vite, TypeScript | NestJS 10, Fastify |
 | Zustand, React Router v6 | Prisma ORM, PostgreSQL |
-| Tailwind CSS, Framer Motion | Passport JWT, Socket.IO |
-| Recharts, Sonner, Zod | Swagger, class-validator |
+| Tailwind CSS, Framer Motion | Passport JWT, Socket.IO (WS) |
+| Recharts, Sonner, Zod | Groq SDK (Llama 3.3 70B) |
+| Lucide React, Google Charts | OpenAI SDK (GPT-4o) |
+| Radix UI, Lucide | Swagger, class-validator |
 
 ## 🏗 Architecture
 

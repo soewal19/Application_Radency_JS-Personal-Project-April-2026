@@ -67,6 +67,23 @@ const getWeekDays = (date: Date) => {
 const isSameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
+const getTagColor = (tag?: string) => {
+  if (!tag) return 'bg-primary/10 text-primary border-primary/20';
+  const colors: Record<string, string> = {
+    tech: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+    music: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+    art: 'bg-pink-500/10 text-pink-600 border-pink-500/20',
+    sport: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+    food: 'bg-green-500/10 text-green-600 border-green-500/20',
+    business: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+    charity: 'bg-red-500/10 text-red-600 border-red-500/20',
+    health: 'bg-teal-500/10 text-teal-600 border-teal-500/20',
+    education: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+  };
+  const normalized = tag.toLowerCase();
+  return colors[normalized] || 'bg-primary/10 text-primary border-primary/20';
+};
+
 const MyEvents = () => {
   const { myEvents, fetchMyEvents, deleteEvent, isLoading } = useEventStore();
   const { user, updateAvatar, updateProfile } = useAuthStore();
@@ -236,10 +253,20 @@ const MyEvents = () => {
                   {day.getDate()}
                 </span>
                 <div className="mt-0.5 space-y-0.5">
-                  {events.slice(0, 2).map(evt => (
-                    <Link key={evt.id} to={`/events/${evt.id}`} className="block truncate rounded px-1 py-0.5 text-[10px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
-                      {evt.title}
-                    </Link>
+                  {events.slice(0, 2).map((evt, idx) => (
+                    <motion.div
+                      key={evt.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: idx * 0.1 }}
+                    >
+                      <Link
+                        to={`/events/${evt.id}`}
+                        className={`block truncate rounded px-1 py-0.5 text-[10px] font-medium border transition-colors ${getTagColor(evt.tags?.[0])} hover:opacity-80`}
+                      >
+                        {evt.title}
+                      </Link>
+                    </motion.div>
                   ))}
                   {events.length > 2 && <span className="block text-[10px] text-muted-foreground pl-1">+{events.length - 2} more</span>}
                 </div>
@@ -275,10 +302,20 @@ const MyEvents = () => {
                 const dayEvents = getEventsForDay(day).filter(e => new Date(e.date).getHours() === hour);
                 return (
                   <div key={di} className="relative border-r border-border last:border-r-0 min-h-[48px] p-0.5">
-                    {dayEvents.map(evt => (
-                      <Link key={evt.id} to={`/events/${evt.id}`} className="block truncate rounded px-1.5 py-1 text-[10px] font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors mb-0.5">
-                        {evt.title}
-                      </Link>
+                    {dayEvents.map((evt, idx) => (
+                      <motion.div
+                        key={evt.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: idx * 0.05 }}
+                      >
+                        <Link
+                          to={`/events/${evt.id}`}
+                          className={`block truncate rounded px-1.5 py-1 text-[10px] font-medium border transition-colors mb-0.5 ${getTagColor(evt.tags?.[0])} hover:opacity-80`}
+                        >
+                          {evt.title}
+                        </Link>
+                      </motion.div>
                     ))}
                   </div>
                 );

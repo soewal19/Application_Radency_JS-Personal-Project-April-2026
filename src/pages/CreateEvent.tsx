@@ -40,6 +40,10 @@ const eventSchema = z.object({
     .number()
     .min(2, 'At least 2 participants')
     .max(10000, 'Maximum 10,000 participants'),
+  tags: z
+    .array(z.string().min(1).max(30))
+    .max(5, 'Maximum 5 tags allowed')
+    .optional(),
 });
 
 const CreateEvent = () => {
@@ -53,7 +57,9 @@ const CreateEvent = () => {
     location: '',
     category: EventCategory.MEETUP,
     maxParticipants: 50,
+    tags: [] as string[],
   });
+  const [tagInput, setTagInput] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +79,21 @@ const CreateEvent = () => {
     navigate('/events');
   };
 
-  const update = (field: string, value: string | number) => {
+  const update = (field: string, value: string | number | string[]) => {
     setForm(f => ({ ...f, [field]: value }));
+  };
+
+  const addTag = () => {
+    const value = tagInput.trim();
+    if (!value) return;
+    if (form.tags.includes(value)) return;
+    if (form.tags.length >= 5) return;
+    setForm(f => ({ ...f, tags: [...f.tags, value] }));
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => {
+    setForm(f => ({ ...f, tags: f.tags.filter((t) => t !== tag) }));
   };
 
   return (
@@ -128,6 +147,41 @@ const CreateEvent = () => {
               <Input id="maxParticipants" type="number" value={form.maxParticipants} onChange={e => update('maxParticipants', Number(e.target.value))} className="mt-1.5" min={2} max={10000} />
               {errors.maxParticipants && <p className="mt-1 text-xs text-destructive">{errors.maxParticipants}</p>}
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="tags">Tags (optional)</Label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {form.tags.map(tag => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs text-foreground hover:bg-muted/80"
+                >
+                  {tag}
+                  <span aria-hidden>×</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 flex gap-2">
+              <Input
+                id="tags"
+                placeholder="Add tag and press Enter"
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                  }
+                }}
+              />
+              <Button type="button" onClick={addTag} className="text-sm">
+                Add
+              </Button>
+            </div>
+            {errors.tags && <p className="mt-1 text-xs text-destructive">{errors.tags}</p>}
           </div>
 
           <div className="flex gap-3 pt-2">

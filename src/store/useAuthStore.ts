@@ -126,18 +126,32 @@ export const useAuthStore = create<AuthState>()(
 
       clearError: () => set({ error: null }),
 
-      updateAvatar: (avatar: string) => {
+      updateAvatar: async (avatar: string) => {
         const user = get().user;
         if (!user) return;
-        logger.info('Avatar updated', 'Auth', { userId: user.id });
-        set({ user: { ...user, avatar } });
+        logger.info('Avatar updating on server', 'Auth', { userId: user.id });
+        try {
+          const updatedUser = await apiService.updateProfile({ avatar });
+          set({ user: updatedUser });
+        } catch (error) {
+          logger.error('Failed to update avatar on server', 'Auth', error);
+          // Fallback to local update if API fails (e.g. mock mode)
+          set({ user: { ...user, avatar } });
+        }
       },
 
-      updateProfile: (data: Partial<Pick<IUser, 'name' | 'email'>>) => {
+      updateProfile: async (data: Partial<Pick<IUser, 'name' | 'email'>>) => {
         const user = get().user;
         if (!user) return;
-        logger.info('Profile updated', 'Auth', { userId: user.id, fields: Object.keys(data) });
-        set({ user: { ...user, ...data } });
+        logger.info('Profile updating on server', 'Auth', { userId: user.id, fields: Object.keys(data) });
+        try {
+          const updatedUser = await apiService.updateProfile(data);
+          set({ user: updatedUser });
+        } catch (error) {
+          logger.error('Failed to update profile on server', 'Auth', error);
+          // Fallback to local update
+          set({ user: { ...user, ...data } });
+        }
       },
     }),
     {

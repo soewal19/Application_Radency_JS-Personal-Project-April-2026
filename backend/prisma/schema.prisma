@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -40,11 +40,23 @@ model Event {
 
   organizer    User               @relation(fields: [organizerId], references: [id])
   participants EventParticipant[]
+  tags         Tag[]              @relation("EventTags")
 
   @@index([organizerId])
   @@index([category])
   @@index([date])
   @@map("events")
+}
+
+model Tag {
+  id         String   @id @default(uuid())
+  name       String
+  normalized String   @unique
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  events     Event[]  @relation("EventTags")
+
+  @@map("tags")
 }
 
 model EventParticipant {

@@ -5,11 +5,15 @@
 
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import type { FastifyRequest } from 'fastify';
+import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { QueryEventsDto } from './dto/query-events.dto';
+
+type AuthenticatedRequest = (ExpressRequest | FastifyRequest) & { user: { id: string; email: string } };
 
 @ApiTags('events')
 @ApiBearerAuth('JWT-auth')
@@ -34,7 +38,7 @@ export class EventsController {
   @Get('my')
   @ApiOperation({ summary: 'Get events created by current user' })
   @ApiResponse({ status: 200, description: 'User\'s events list' })
-  async findMy(@Request() req, @Query() query: QueryEventsDto) {
+  async findMy(@Request() req: AuthenticatedRequest, @Query() query: QueryEventsDto) {
     return this.eventsService.findByUser(req.user.id, query);
   }
 
@@ -51,7 +55,7 @@ export class EventsController {
   @ApiOperation({ summary: 'Create a new event', description: 'Creates event with current user as organizer' })
   @ApiResponse({ status: 201, description: 'Event created successfully' })
   @ApiResponse({ status: 400, description: 'Validation error' })
-  async create(@Body() dto: CreateEventDto, @Request() req) {
+  async create(@Body() dto: CreateEventDto, @Request() req: AuthenticatedRequest) {
     return this.eventsService.create(dto, req.user.id);
   }
 
@@ -61,7 +65,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Event updated' })
   @ApiResponse({ status: 403, description: 'Forbidden — not the organizer' })
   @ApiResponse({ status: 404, description: 'Event not found' })
-  async update(@Param('id') id: string, @Body() dto: UpdateEventDto, @Request() req) {
+  async update(@Param('id') id: string, @Body() dto: UpdateEventDto, @Request() req: AuthenticatedRequest) {
     return this.eventsService.update(id, dto, req.user.id);
   }
 
@@ -71,7 +75,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Event deleted' })
   @ApiResponse({ status: 403, description: 'Forbidden — not the organizer' })
   @ApiResponse({ status: 404, description: 'Event not found' })
-  async remove(@Param('id') id: string, @Request() req) {
+  async remove(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.eventsService.remove(id, req.user.id);
   }
 
@@ -81,7 +85,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Successfully joined' })
   @ApiResponse({ status: 400, description: 'Already a participant or no spots available' })
   @ApiResponse({ status: 404, description: 'Event not found' })
-  async join(@Param('id') id: string, @Request() req) {
+  async join(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.eventsService.join(id, req.user.id);
   }
 
@@ -91,7 +95,28 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Successfully left' })
   @ApiResponse({ status: 400, description: 'Not a participant' })
   @ApiResponse({ status: 404, description: 'Event not found' })
-  async leave(@Param('id') id: string, @Request() req) {
+  async leave(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.eventsService.leave(id, req.user.id);
+  }
+
+  @Post(':id/register-someone')
+  @ApiOperation({ summary: 'Register someone else (Organizer only)', description: 'Allows organizer to register any user by email' })
+  @ApiParam({ name: 'id', type: String, description: 'Event UUID' })
+  @ApiResponse({ status: 200, description: 'User registered successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden — not the organizer' })
+  @ApiResponse({ status: 404, description: 'Event or User not found' })
+  async registerSomeone(
+    @Param('id') id: string,
+    @Body('email') email: string,
+    @Request() req: AuthenticatedRequest
+  ) {
+    return this.eventsService.registerSomeone(id, req.user.id, email);
+  }
+
+  @Get('tags')
+  @ApiOperation({ summary: 'Get all tags' })
+  @ApiResponse({ status: 200, description: 'List of tags' })
+  async getTags() {
+    return this.eventsService.getTags();
   }
 }

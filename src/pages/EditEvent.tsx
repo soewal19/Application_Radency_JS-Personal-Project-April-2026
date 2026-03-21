@@ -20,13 +20,20 @@ import { useToast } from '@/hooks/use-toast';
 const EditEvent = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { currentEvent, fetchEvent, isLoading } = useEventStore();
+  const { currentEvent, fetchEvent, isLoading, updateEvent } = useEventStore();
   const { user } = useAuthStore();
   const { toast } = useToast();
 
   const [form, setForm] = useState({
-    title: '', description: '', date: '', location: '', category: 'meetup', maxParticipants: 50,
+    title: '',
+    description: '',
+    date: '',
+    location: '',
+    category: 'meetup',
+    maxParticipants: 50,
+    tags: [] as string[],
   });
+  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     if (id) fetchEvent(id);
@@ -41,15 +48,38 @@ const EditEvent = () => {
         location: currentEvent.location,
         category: currentEvent.category,
         maxParticipants: currentEvent.maxParticipants,
+        tags: currentEvent.tags ?? [],
       });
     }
   }, [currentEvent]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const addTag = () => {
+    const value = tagInput.trim();
+    if (!value) return;
+    if (form.tags.includes(value)) return;
+    if (form.tags.length >= 5) return;
+    setForm(f => ({ ...f, tags: [...f.tags, value] }));
+    setTagInput('');
+  };
+
+  const removeTag = (tag: string) => {
+    setForm(f => ({ ...f, tags: f.tags.filter((t) => t !== tag) }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In demo mode, just show success and navigate back
-    toast({ title: 'Event updated', description: `"${form.title}" has been updated successfully.` });
-    navigate(`/events/${id}`);
+    if (!id) return;
+
+    try {
+      await updateEvent(id, {
+        ...form,
+        date: form.date,
+      });
+      toast({ title: 'Event updated', description: `"${form.title}" has been updated successfully.` });
+      navigate(`/events/${id}`);
+    } catch {
+      toast({ title: 'Failed to update event', variant: 'destructive' });
+    }
   };
 
   if (isLoading || !currentEvent) {
@@ -108,6 +138,40 @@ const EditEvent = () => {
           <div>
             <Label htmlFor="max">Max Participants</Label>
             <Input id="max" type="number" min={1} value={form.maxParticipants} onChange={e => setForm(f => ({ ...f, maxParticipants: +e.target.value }))} required />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="tags">Tags (optional)</Label>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {form.tags.map(tag => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs text-foreground hover:bg-muted/80"
+              >
+                {tag}
+                <span aria-hidden>×</span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 flex gap-2">
+            <Input
+              id="tags"
+              placeholder="Add tag and press Enter"
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
+            />
+            <Button type="button" onClick={addTag} className="text-sm">
+              Add
+            </Button>
           </div>
         </div>
         <Button type="submit" className="w-full gradient-primary gap-2">

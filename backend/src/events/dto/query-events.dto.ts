@@ -36,4 +36,9 @@ export class QueryEventsDto {
   @IsOptional()
   @IsString()
   sortOrder?: string = 'DESC';
+
+  @ApiPropertyOptional({ description: 'Comma-separated list of tags to filter events (any match)' })
+  @IsOptional()
+  @IsString()
+  tags?: string;
 }

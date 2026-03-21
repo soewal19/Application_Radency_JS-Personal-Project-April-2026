@@ -23,8 +23,10 @@ interface LogEntry {
 
 const LOG_LEVEL = import.meta.env.PROD ? LogLevel.INFO : LogLevel.DEBUG;
 
-const formatEntry = (entry: LogEntry): string =>
-  `[${entry.timestamp}] [${entry.level}]${entry.context ? ` [${entry.context}]` : ''} ${entry.message}`;
+const formatEntry = (entry: LogEntry): string => {
+  const emoji = entry.level === 'ERROR' ? '❌' : entry.level === 'WARN' ? '⚠️' : entry.level === 'INFO' ? 'ℹ️' : '🔍';
+  return `${emoji} [${entry.timestamp}] [${entry.level}]${entry.context ? ` [${entry.context}]` : ''} ${entry.message}`;
+};
 
 const createEntry = (level: string, message: string, context?: string, data?: unknown): LogEntry => ({
   timestamp: new Date().toISOString(),

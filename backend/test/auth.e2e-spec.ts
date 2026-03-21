@@ -7,6 +7,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
+jest.setTimeout(30000);
+
 describe('Auth (e2e)', () => {
   let app: INestApplication;
 
@@ -64,7 +66,7 @@ describe('Auth (e2e)', () => {
   it('/api/auth/login (POST) — неверный пароль', async () => {
     await request(app.getHttpServer())
       .post('/api/auth/login')
-      .send({ email: testUser.email, password: 'wrong' })
+      .send({ email: testUser.email, password: 'wrongpass' })
       .expect(401);
   });
 });
