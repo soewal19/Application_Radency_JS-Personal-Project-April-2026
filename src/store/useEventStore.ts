@@ -45,6 +45,7 @@ const generateMockEvents = (): IEvent[] => {
       currentParticipants: Math.floor(Math.random() * 40),
       organizerId: `user-${(i % 5) + 1}`,
       organizerName: organizers[i % 5],
+      creatorType: 'manual' as const,
       createdAt: new Date(2026, 2, 1 + i).toISOString(),
       updatedAt: new Date(2026, 2, 1 + i).toISOString(),
     };
@@ -71,7 +72,7 @@ interface EventState {
   fetchMyEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
   fetchEvent: (id: string) => Promise<void>;
   fetchTags: () => Promise<void>;
-  createEvent: (event: Omit<IEvent, 'id' | 'organizerId' | 'organizerName' | 'currentParticipants' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  createEvent: (event: Omit<IEvent, 'id' | 'organizerId' | 'organizerName' | 'currentParticipants' | 'createdAt' | 'updatedAt'>) => Promise<IEvent | void>;
   updateEvent: (id: string, data: Partial<IEvent>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   joinEvent: (id: string) => Promise<void>;

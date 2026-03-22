@@ -16,10 +16,12 @@ const mockEvent: IEvent = {
   date: '2026-06-15T10:00:00.000Z',
   location: 'Москва',
   category: EventCategory.CONFERENCE,
+  tags: ['Tech', 'React'],
   maxParticipants: 100,
   currentParticipants: 45,
   organizerId: 'user-1',
   organizerName: 'Алексей',
+  creatorType: 'manual',
   createdAt: '2026-03-01T00:00:00.000Z',
   updatedAt: '2026-03-01T00:00:00.000Z',
 };
