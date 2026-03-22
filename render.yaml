@@ -17,9 +17,9 @@ services:
     rootDir: backend
     branch: ai-agent
     buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: node dist/src/main
+    startCommand: npx prisma migrate deploy && node dist/src/main
     healthCheckPath: /api/health
-    postDeployCommand: npx prisma migrate deploy
+    # postDeployCommand: npx prisma migrate deploy  # Disabled - migrations now run in startCommand
     envVars:
       - key: NODE_ENV
         value: production

@@ -30,6 +30,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   async onModuleInit() {
     this.logger.log('Connecting to PostgreSQL via Prisma...');
     
+    // Log database connection info (masked for security)
+    const dbUrl = process.env.DATABASE_URL || 'NOT_SET';
+    const maskedUrl = dbUrl.replace(/:([^@]+)@/, ':****@');
+    this.logger.log(`Database URL: ${maskedUrl}`);
+    
     // Retry connection logic for cloud environments (Render, etc.)
     // Using exponential backoff for better reliability
     const maxRetries = 10;
@@ -41,7 +46,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         this.logger.log('Database connected successfully');
         return;
       } catch (error) {
-        this.logger.warn(`Database connection attempt ${attempt}/${maxRetries} failed: ${error.message}`);
+        // Log detailed error info
+        this.logger.warn(`Database connection attempt ${attempt}/${maxRetries} failed:`);
+        this.logger.warn(`  Error: ${error.message}`);
+        this.logger.warn(`  Code: ${error.code || 'N/A'}`);
+        this.logger.warn(`  Meta: ${JSON.stringify(error.meta) || '{}'}`);
+        
         if (attempt < maxRetries) {
           this.logger.log(`Retrying in ${retryDelay / 1000} seconds...`);
           await new Promise(resolve => setTimeout(resolve, retryDelay));
