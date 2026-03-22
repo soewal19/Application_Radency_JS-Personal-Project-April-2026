@@ -31,8 +31,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     this.logger.log('Connecting to PostgreSQL via Prisma...');
     
     // Retry connection logic for cloud environments (Render, etc.)
-    const maxRetries = 5;
-    const retryDelay = 3000; // 3 seconds
+    // Using exponential backoff for better reliability
+    const maxRetries = 10;
+    let retryDelay = 2000; // Start with 2 seconds
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -44,11 +45,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         if (attempt < maxRetries) {
           this.logger.log(`Retrying in ${retryDelay / 1000} seconds...`);
           await new Promise(resolve => setTimeout(resolve, retryDelay));
+          // Exponential backoff: double the delay each time, max 30 seconds
+          retryDelay = Math.min(retryDelay * 2, 30000);
         }
       }
     }
     
-    // If all retries fail, try one more time and throw
+    // If all retries fail, throw
     this.logger.error('All database connection attempts failed');
     throw new Error('Failed to connect to database after multiple attempts');
   }
