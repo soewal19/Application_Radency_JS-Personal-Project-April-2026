@@ -15,6 +15,7 @@ services:
     runtime: node
     plan: free
     rootDir: backend
+    branch: ai-agent
     buildCommand: npm ci && npm run build
     startCommand: node dist/main
     healthCheckPath: /api
@@ -63,6 +64,7 @@ services:
     name: eventhub-frontend
     runtime: static
     plan: free
+    branch: ai-agent
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
     headers:
