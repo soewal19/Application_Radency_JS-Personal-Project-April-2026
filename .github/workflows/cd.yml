@@ -45,6 +45,38 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/ai-agent'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ai-agent
+
+      - name: Apply Render Blueprint
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ]; then
+            echo "RENDER_API_KEY not set, skipping blueprint deploy"
+            exit 0
+          fi
+          # Get repository ID from GitHub
+          REPO_ID=$(curl -s "https://api.github.com/repos/${{ github.repository }}" | grep -o '"id": [0-9]*' | head -1 | cut -d' ' -f2)
+          
+          # Create blueprint deployment
+          curl -s -X POST "https://api.render.com/v1/blueprints" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repo": {
+                "id": '"$REPO_ID"',
+                "url": "https://github.com/${{ github.repository }}"
+              },
+              "ownerId": "'$RENDER_OWNER_ID'",
+              "branch": "ai-agent",
+              "name": "eventhub",
+              "provisionParameters": {}
+            }'
+
       - name: Deploy Backend to Render
         if: github.ref == 'refs/heads/ai-agent'
         env:
