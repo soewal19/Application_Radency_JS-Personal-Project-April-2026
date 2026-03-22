@@ -4,7 +4,8 @@ import { apiService } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Bot, Plus, Trash2, Zap, User, ExternalLink, BrainCircuit, X } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Bot, Plus, Trash2, Zap, User, ExternalLink, BrainCircuit, X, AlertCircle, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -43,6 +44,7 @@ const Agents = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Modals state
   const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
@@ -72,15 +74,17 @@ const Agents = () => {
 
   const fetchData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const [agentsRes, skillsRes] = await Promise.all([
         apiService.request<Agent[]>('/agents'),
         apiService.request<Skill[]>('/agents/skills'),
       ]);
-      setAgents(agentsRes);
-      setAvailableSkills(skillsRes);
-    } catch (error) {
-      console.error('Failed to fetch data', error);
+      setAgents(agentsRes || []);
+      setAvailableSkills(skillsRes || []);
+    } catch (error: any) {
+      console.error('Failed to fetch agents data:', error);
+      setError(error.message || 'Failed to load agents data. Please check if the backend is running.');
       toast.error('Failed to load agents data');
     } finally {
       setIsLoading(false);
@@ -274,6 +278,41 @@ const Agents = () => {
               <CardContent className="h-32" />
             </Card>
           ))
+        ) : error ? (
+          <Alert variant="destructive" className="col-span-full">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {error}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-2 ml-2"
+                onClick={fetchData}
+              >
+                <RefreshCw className="mr-2 h-3 w-3" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : agents.length === 0 ? (
+          <Card className="col-span-full border-muted bg-muted/20">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <Bot className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <CardTitle>No Agents Found</CardTitle>
+              <CardDescription>
+                Create your first AI agent to get started with the swarm orchestration.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button onClick={() => setIsAgentModalOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Agent
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           agents.map((agent, index) => (
             <motion.div
