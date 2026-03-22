@@ -2,21 +2,21 @@
 # https://render.com/docs/blueprint-spec
 
 databases:
-  - name: eventhub-db
+  - name: application-db
     plan: free
-    databaseName: eventhub
-    user: eventhub_user
-    postgresMajorVersion: "16"
+    databaseName: application_radency
+    user: admin
+    postgresMajorVersion: "15"
 
 services:
   # Backend (NestJS API)
   - type: web
-    name: eventhub-backend
+    name: application-backend
     runtime: node
     plan: free
     rootDir: backend
     branch: ai-agent
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npx prisma generate && npm run build
     startCommand: node dist/main
     healthCheckPath: /api/health
     postDeployCommand: npx prisma migrate deploy
@@ -25,26 +25,6 @@ services:
         value: production
       - key: PORT
         value: "3000"
-      - key: DB_HOST
-        fromDatabase:
-          name: eventhub-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: eventhub-db
-          property: port
-      - key: DB_USERNAME
-        fromDatabase:
-          name: eventhub-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: eventhub-db
-          property: password
-      - key: DB_DATABASE
-        fromDatabase:
-          name: eventhub-db
-          property: database
       - key: DATABASE_URL
         fromDatabase:
           name: application-db
@@ -52,7 +32,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
-        value: "https://application-frontend-fjji.onrender.com,https://application-backend-54iw.onrender.com,http://localhost:5173,http://localhost:3000"
+        value: "https://application-frontend-fjji.onrender.com,https://application-backend-54iw.onrender.com"
         sync: true
       - key: GROQ_API_KEY
         sync: false
@@ -62,11 +42,11 @@ services:
 
   # Frontend (React SPA via static site)
   - type: web
-    name: eventhub-frontend
+    name: application-frontend
     runtime: static
     plan: free
     branch: ai-agent
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     staticPublishPath: dist
     headers:
       - path: /*
