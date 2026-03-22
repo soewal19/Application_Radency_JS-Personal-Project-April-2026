@@ -64,12 +64,34 @@
   | `VITE_SOCKET_URL` | `https://your-backend.onrender.com` |
 - Add rewrite rule: `/*` → `/index.html`
 
-## Post-Deployment Checklist
+## Troubleshooting
 
-- [ ] Backend health check passes (`/api`)
-- [ ] Frontend loads and shows login page
-- [ ] Test account works: `test@eventhub.com` / `Test123!`
-- [ ] Events list loads with pagination
-- [ ] Swagger docs accessible at `/api/docs`
-- [ ] WebSocket connection established
-- [ ] CORS properly configured
+### "Database: Offline" or "WebSocket: Offline" on Render
+
+If you see these errors after deployment, check the following:
+
+1. **Backend Environment Variables**:
+   - `DATABASE_URL`: Must be a valid PostgreSQL connection string (e.g., `postgresql://...`).
+   - `ALLOWED_ORIGINS`: Must include your frontend URL (e.g., `https://your-frontend.onrender.com`). No trailing slashes!
+   - `JWT_SECRET`: Must be set.
+
+2. **Frontend Environment Variables**:
+   - `VITE_API_URL`: Must be your backend URL + `/api` (e.g., `https://your-backend.onrender.com/api`).
+   - `VITE_SOCKET_URL`: Must be your backend URL (e.g., `https://your-backend.onrender.com`).
+
+3. **Database Migrations**:
+   - Ensure `npx prisma migrate deploy` has run. You can check this in the "Events" tab of your backend service on Render.
+
+### Automated Fix Script
+
+If you have a Render API Key, you can use the following script to automatically configure your services:
+
+```bash
+# Set your keys
+export RENDER_API_KEY="your_api_key"
+export FRONTEND_URL="https://application-frontend-fjji.onrender.com"
+export BACKEND_URL="https://application-backend-54iw.onrender.com"
+
+# Run the deployment helper (if available in ci_cd/)
+./ci_cd/deploy-render.sh
+```

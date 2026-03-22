@@ -1,0 +1,8 @@
+{
+  "serviceDetails": {
+    "envSpecificDetails": {
+      "buildCommand": "npm ci && npm run build",
+      "startCommand": "node dist/main"
+    }
+  }
+}

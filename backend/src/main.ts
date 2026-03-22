@@ -25,7 +25,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // CORS with whitelist
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:8080,http://localhost:3000').split(',');
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:8080,http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim());
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {

@@ -171,7 +171,7 @@ export class EventsService {
           date: eventDate,
           organizerId: userId,
           organizerName: user.name,
-          // creatorType field removed - not in Prisma schema
+          creatorType: creatorType || 'manual', // Requirement 4
           tags: connectOrCreate.length ? { connectOrCreate } : undefined,
         },
         include: { tags: true },
