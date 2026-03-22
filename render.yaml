@@ -52,6 +52,11 @@ services:
       - key: ALLOWED_ORIGINS
         value: "https://application-frontend-fjji.onrender.com,https://application-backend-54iw.onrender.com,http://localhost:5173,http://localhost:3000"
         sync: true
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: "llama-3.3-70b-versatile"
+        sync: true
 
   # Frontend (React SPA via static site)
   - type: web
