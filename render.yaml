@@ -4,9 +4,10 @@
 databases:
   - name: application-db
     plan: free
-    databaseName: eventhub
-    user: eventhub
+    databaseName: application_radency
+    user: applicationdb_4xkt_user
     postgresMajorVersion: "15"
+    # Note: Database already created manually with these exact credentials
 
 services:
   # Backend (NestJS API)
@@ -26,9 +27,7 @@ services:
       - key: PORT
         value: "3000"
       - key: DATABASE_URL
-        fromDatabase:
-          name: application-db
-          property: connectionString
+        value: "postgresql://applicationdb_4xkt_user:mi9hdAwbJJNbsVEbDWGDDkLz8UOJkmBp@dpg-d6s7bgshg0os73f1ppm0-a:5432/application_radency"
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
