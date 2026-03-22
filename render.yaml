@@ -18,7 +18,7 @@ services:
     branch: ai-agent
     buildCommand: npm ci && npm run build
     startCommand: node dist/main
-    healthCheckPath: /api
+    healthCheckPath: /api/health
     postDeployCommand: npx prisma migrate deploy
     envVars:
       - key: NODE_ENV
