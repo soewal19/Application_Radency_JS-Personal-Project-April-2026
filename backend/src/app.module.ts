@@ -14,7 +14,11 @@ import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      ignoreEnvFile: process.env.NODE_ENV === 'production', // Use env vars in production, not .env file
+    }),
     PrismaModule,
     AuthModule,
     EventsModule,
