@@ -19,6 +19,7 @@ services:
     buildCommand: npm ci && npm run build
     startCommand: node dist/main
     healthCheckPath: /api
+    postDeployCommand: npx prisma migrate deploy
     envVars:
       - key: NODE_ENV
         value: production
