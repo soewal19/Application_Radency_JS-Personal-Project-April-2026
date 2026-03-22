@@ -72,7 +72,40 @@ describe('Events Lifecycle (e2e)', () => {
       expect(res.body).toHaveProperty('id');
       expect(res.body.title).toBe(payload.title);
       expect(res.body.tags).toContain('Testing');
+      expect(res.body.creatorType).toBe('manual');
       testEventId = res.body.id;
+    });
+
+    it('должен успешно создать событие через AI с меткой и тегом', async () => {
+      const payload = {
+        title: 'AI Generated Workshop',
+        description: 'Testing AI creation flow and tagging.',
+        date: new Date(Date.now() + 172800000).toISOString(),
+        location: 'Virtual',
+        category: 'workshop',
+        maxParticipants: 50,
+        creatorType: 'ai'
+      };
+
+      const res = await request(app.getHttpServer())
+        .post('/api/events')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send(payload)
+        .expect(201);
+
+      expect(res.body.creatorType).toBe('ai');
+      expect(res.body.tags).toContain('ai-generated');
+    });
+
+    it('должен отображать созданные события во вкладке /my', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/api/events/my')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(res.body.data.length).toBeGreaterThanOrEqual(2);
+      expect(res.body.data.some((e: any) => e.title === 'E2E Best Practices Workshop')).toBe(true);
+      expect(res.body.data.some((e: any) => e.title === 'AI Generated Workshop')).toBe(true);
     });
 
     it('должен вернуть 400 при отсутствии обязательных полей', async () => {

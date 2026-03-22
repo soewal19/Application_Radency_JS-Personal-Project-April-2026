@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'framer-motion';
-import { Book, Code, Server, Shield, Zap, HelpCircle, ExternalLink } from 'lucide-react';
+import { Book, Code, Server, Shield, Zap, HelpCircle, ExternalLink, Bot, Tags } from 'lucide-react';
 
 const sections = [
   {
@@ -28,48 +28,57 @@ const sections = [
     ],
   },
   {
+    icon: Tags,
+    title: 'Event Tags',
+    content: [
+      'Select existing tags from a searchable dropdown',
+      'Create your own custom tags if they don\'t exist',
+      'Tags help other users discover your events',
+      'Maximum 5 tags per event',
+    ],
+  },
+  {
+    icon: Bot,
+    title: 'AI Assistant & Agents',
+    content: [
+      'Use the AI chat to find events and get statistics',
+      'Specialized agents handle search, management, and data insights',
+      'The system uses a hierarchical fallback for response reliability',
+      'View and manage active agents in the "Agents" tab',
+    ],
+  },
+  {
+    icon: BrainCircuit,
+    title: 'AI Agent Builder (MLOps)',
+    content: [
+      'Create custom agents with specialized roles and prompts',
+      'Register new Skills (Tools) using JSON Schema definitions',
+      'Train agents using Knowledge Base (RAG) for specific expertise',
+      'Deploy agents directly into the AI Swarm for task delegation',
+    ],
+  },
+  {
     icon: Server,
     title: 'Architecture',
     content: [
       'Frontend: React 18 + TypeScript + Zustand + Tailwind CSS',
-      'Backend: NestJS + PostgreSQL + JWT + Socket.IO',
-      'Real-time data exchange via WebSocket',
-      'Whitelist of allowed hosts for security',
-    ],
-  },
-  {
-    icon: Shield,
-    title: 'Security',
-    content: [
-      'JWT authentication with access/refresh tokens',
-      'Input validation on both client and server (Zod / class-validator)',
-      'CORS with whitelisted domains',
-      'Rate limiting for DDoS protection',
+      'Backend: NestJS + Prisma + SQLite (Local) / PostgreSQL (Prod)',
+      'Real-time data updates via Socket.IO',
+      'AI Swarm architecture for intelligent request handling',
     ],
   },
   {
     icon: Code,
     title: 'API Documentation',
     content: [
-      'POST /api/auth/register — registration',
-      'POST /api/auth/login — authentication',
       'GET /api/events — list events (pagination, filters)',
-      'POST /api/events — create an event',
-      'GET /api/events/:id — event details',
-      'PATCH /api/events/:id — update an event',
-      'DELETE /api/events/:id — delete an event',
+      'POST /api/events — create a new event',
       'POST /api/events/:id/join — join an event',
-      'POST /api/events/:id/leave — leave an event',
-    ],
-  },
-  {
-    icon: HelpCircle,
-    title: 'FAQ',
-    content: [
-      'Q: How many events can I create? — Unlimited',
-      'Q: How do I delete an event? — Only the organizer can, via the detail page',
-      'Q: How does pagination work? — 15 records per page',
-      'Q: Is data updated in real time? — Yes, via Socket.IO',
+      'GET /api/events/tags — get all available tags',
+      'POST /api/ai/query — query the AI Assistant',
+      'GET /api/agents — list active AI agents',
+      'POST /api/agents — create a custom agent',
+      'GET /api/agents/skills — list available agent skills',
     ],
   },
 ];

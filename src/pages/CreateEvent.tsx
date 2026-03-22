@@ -3,7 +3,7 @@
  * @description Page for creating a new event with form validation
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEventStore } from '@/store/useEventStore';
 import { EventCategory } from '@/types/event';
@@ -12,6 +12,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { z } from 'zod';
 
@@ -48,8 +52,9 @@ const eventSchema = z.object({
 
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const { createEvent, isLoading } = useEventStore();
+  const { createEvent, fetchTags, availableTags, isLoading } = useEventStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -60,6 +65,10 @@ const CreateEvent = () => {
     tags: [] as string[],
   });
   const [tagInput, setTagInput] = useState('');
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,21 +84,22 @@ const CreateEvent = () => {
       return;
     }
 
-    await createEvent(form);
-    navigate('/events');
+    await createEvent({ ...form, creatorType: 'manual' } as any);
+    navigate('/my-events');
   };
 
   const update = (field: string, value: string | number | string[]) => {
     setForm(f => ({ ...f, [field]: value }));
   };
 
-  const addTag = () => {
-    const value = tagInput.trim();
+  const addTag = (tag?: string) => {
+    const value = (tag || tagInput).trim();
     if (!value) return;
     if (form.tags.includes(value)) return;
     if (form.tags.length >= 5) return;
     setForm(f => ({ ...f, tags: [...f.tags, value] }));
     setTagInput('');
+    setOpen(false);
   };
 
   const removeTag = (tag: string) => {
@@ -157,29 +167,67 @@ const CreateEvent = () => {
                   key={tag}
                   type="button"
                   onClick={() => removeTag(tag)}
-                  className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs text-foreground hover:bg-muted/80"
+                  className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
                 >
                   {tag}
-                  <span aria-hidden>×</span>
+                  <X className="h-3 w-3" />
                 </button>
               ))}
             </div>
+            
             <div className="mt-2 flex gap-2">
-              <Input
-                id="tags"
-                placeholder="Add tag and press Enter"
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-              />
-              <Button type="button" onClick={addTag} className="text-sm">
-                Add
-              </Button>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                  >
+                    {tagInput || "Select tag or type to create..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Search or create tag..." 
+                      value={tagInput}
+                      onValueChange={setTagInput}
+                    />
+                    <CommandList>
+                      <CommandEmpty>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start text-sm"
+                          onClick={() => addTag()}
+                        >
+                          Create "{tagInput}"
+                        </Button>
+                      </CommandEmpty>
+                      <CommandGroup heading="Available Tags">
+                        {availableTags
+                          .filter(tag => !form.tags.includes(tag))
+                          .map((tag) => (
+                            <CommandItem
+                              key={tag}
+                              value={tag}
+                              onSelect={() => addTag(tag)}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  form.tags.includes(tag) ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {tag}
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             {errors.tags && <p className="mt-1 text-xs text-destructive">{errors.tags}</p>}
           </div>

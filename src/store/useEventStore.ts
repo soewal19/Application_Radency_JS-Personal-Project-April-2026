@@ -10,7 +10,7 @@ import { apiService } from '@/services/api';
 import { socketService } from '@/services/socket';
 import { logger } from '@/lib/logger';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 15;
 
 /** Mock data for demo mode */
 const generateMockEvents = (): IEvent[] => {
@@ -65,10 +65,12 @@ interface EventState {
   searchQuery: string;
   categoryFilter: EventCategory | undefined;
   tagFilters: string[];
+  availableTags: string[];
 
   fetchEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
   fetchMyEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
   fetchEvent: (id: string) => Promise<void>;
+  fetchTags: () => Promise<void>;
   createEvent: (event: Omit<IEvent, 'id' | 'organizerId' | 'organizerName' | 'currentParticipants' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateEvent: (id: string, data: Partial<IEvent>) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
@@ -94,6 +96,7 @@ export const useEventStore = create<EventState>()((set, get) => ({
   searchQuery: '',
   categoryFilter: undefined,
   tagFilters: [],
+  availableTags: [],
 
   fetchEvents: async (params) => {
     set({ isLoading: true, error: null });
@@ -167,14 +170,30 @@ export const useEventStore = create<EventState>()((set, get) => ({
     }
   },
 
+  fetchTags: async () => {
+    try {
+      const tags = await apiService.getTags();
+      set({ availableTags: tags });
+    } catch (error) {
+      const tagsPool = ['Tech', 'Art', 'Business', 'Music', 'Design', 'Health', 'Education'];
+      set({ availableTags: tagsPool });
+    }
+  },
+
   createEvent: async (eventData) => {
     set({ isLoading: true });
     logger.store('Events', 'createEvent', { title: eventData.title });
     try {
-      const created = await socketService.emit('createEvent', eventData);
-      // Ensure UI reflects the newest data
-      get().fetchEvents({ page: 1 });
-      set({ isLoading: false });
+      // Requirement 1: Use REST API instead of Socket for creating to ensure direct feedback
+      const created = await apiService.createEvent(eventData as any);
+      
+      // Update local state immediately
+      set((state) => ({
+        events: [created, ...state.events].slice(0, PAGE_SIZE),
+        myEvents: [created, ...state.myEvents],
+        isLoading: false
+      }));
+      
       return created;
     } catch (error) {
       // Fallback to mock mode
@@ -185,13 +204,15 @@ export const useEventStore = create<EventState>()((set, get) => ({
         organizerName: 'You',
         tags: eventData.tags ?? [],
         currentParticipants: 0,
+        creatorType: (eventData as any).creatorType || 'manual',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      ALL_MOCK_EVENTS.unshift(newEvent);
-      set({ isLoading: false });
-      get().fetchEvents({ page: 1 });
-      return newEvent;
+      set((state) => ({
+        events: [newEvent, ...state.events].slice(0, PAGE_SIZE),
+        myEvents: [newEvent, ...state.myEvents],
+        isLoading: false
+      }));
     }
   },
 
@@ -296,7 +317,13 @@ export const useEventStore = create<EventState>()((set, get) => ({
 
   setupSocketListeners: () => {
     socketService.on('event:created', (event) => {
-      set((state) => ({ events: [event, ...state.events].slice(0, PAGE_SIZE) }));
+      set((state) => ({ 
+        events: [event, ...state.events].slice(0, PAGE_SIZE),
+        // Requirement 1: If the current user is the organizer, add to myEvents
+        myEvents: event.organizerId === state.myEvents[0]?.organizerId 
+          ? [event, ...state.myEvents] 
+          : state.myEvents
+      }));
     });
     socketService.on('event:updated', (event) => {
       set((state) => ({

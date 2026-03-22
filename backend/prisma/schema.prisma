@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,10 +15,12 @@ model User {
   email     String   @unique
   name      String
   password  String
+  avatar    String?
   createdAt DateTime @default(now()) @map("created_at")
 
   events       Event[]
   participants EventParticipant[]
+  agents       Agent[]
 
   @@map("users")
 }
@@ -35,6 +37,7 @@ model Event {
   organizerId         String   @map("organizer_id")
   organizerName       String   @default("")   @map("organizer_name")
   imageUrl            String?  @map("image_url")
+  creatorType         String   @default("manual") @map("creator_type") // manual or ai
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt      @map("updated_at")
 
@@ -71,4 +74,46 @@ model EventParticipant {
   @@unique([eventId, userId])
   @@index([userId])
   @@map("event_participants")
+}
+
+model Agent {
+  id           String   @id @default(uuid())
+  name         String
+  role         String
+  systemPrompt String   @map("system_prompt")
+  userId       String?  @map("user_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+
+  user      User?       @relation(fields: [userId], references: [id])
+  skills    Skill[]     @relation("AgentSkills")
+  knowledge Knowledge[]
+
+  @@map("agents")
+}
+
+model Skill {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  parameters  String   // JSON string of parameters
+  isThirdParty Boolean  @default(false) @map("is_third_party")
+  sourceUrl   String?  @map("source_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  agents Agent[] @relation("AgentSkills")
+
+  @@map("skills")
+}
+
+model Knowledge {
+  id        String   @id @default(uuid())
+  agentId   String   @map("agent_id")
+  content   String
+  metadata  String?  // JSON string for extra info
+  createdAt DateTime @default(now()) @map("created_at")
+
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@map("knowledge_base")
 }

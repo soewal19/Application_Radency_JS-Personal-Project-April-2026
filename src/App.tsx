@@ -29,6 +29,7 @@ const CreateEvent = lazy(() => import('@/pages/CreateEvent'));
 const EditEvent = lazy(() => import('@/pages/EditEvent'));
 const MyEvents = lazy(() => import('@/pages/MyEvents'));
 const Users = lazy(() => import('@/pages/Users'));
+const Agents = lazy(() => import('@/pages/Agents'));
 const Help = lazy(() => import('@/pages/Help'));
 const AIAssistant = lazy(() => import('@/pages/AIAssistant'));
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
@@ -148,6 +149,14 @@ const router = createBrowserRouter([
             element: (
               <Suspense fallback={<InlineLoading />}>
                 <Users />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/agents',
+            element: (
+              <Suspense fallback={<InlineLoading />}>
+                <Agents />
               </Suspense>
             ),
           },

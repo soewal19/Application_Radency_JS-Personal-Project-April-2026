@@ -17,6 +17,7 @@ export interface IEvent {
   organizerId: string;
   organizerName: string;
   imageUrl?: string;
+  creatorType: 'manual' | 'ai';
   createdAt: string;
   updatedAt: string;
 }

@@ -12,7 +12,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check, ChevronsUpDown, X, ArrowLeft, Save } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { EventCategory } from '@/types/event';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -20,10 +23,11 @@ import { useToast } from '@/hooks/use-toast';
 const EditEvent = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { currentEvent, fetchEvent, isLoading, updateEvent } = useEventStore();
+  const { currentEvent, fetchEvent, isLoading, updateEvent, fetchTags, availableTags } = useEventStore();
   const { user } = useAuthStore();
   const { toast } = useToast();
 
+  const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -37,6 +41,7 @@ const EditEvent = () => {
 
   useEffect(() => {
     if (id) fetchEvent(id);
+    fetchTags();
   }, [id]);
 
   useEffect(() => {
@@ -53,13 +58,14 @@ const EditEvent = () => {
     }
   }, [currentEvent]);
 
-  const addTag = () => {
-    const value = tagInput.trim();
+  const addTag = (tag?: string) => {
+    const value = (tag || tagInput).trim();
     if (!value) return;
     if (form.tags.includes(value)) return;
     if (form.tags.length >= 5) return;
     setForm(f => ({ ...f, tags: [...f.tags, value] }));
     setTagInput('');
+    setOpen(false);
   };
 
   const removeTag = (tag: string) => {
@@ -149,29 +155,67 @@ const EditEvent = () => {
                 key={tag}
                 type="button"
                 onClick={() => removeTag(tag)}
-                className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs text-foreground hover:bg-muted/80"
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
               >
                 {tag}
-                <span aria-hidden>×</span>
+                <X className="h-3 w-3" />
               </button>
             ))}
           </div>
+          
           <div className="mt-2 flex gap-2">
-            <Input
-              id="tags"
-              placeholder="Add tag and press Enter"
-              value={tagInput}
-              onChange={e => setTagInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addTag();
-                }
-              }}
-            />
-            <Button type="button" onClick={addTag} className="text-sm">
-              Add
-            </Button>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="w-full justify-between"
+                >
+                  {tagInput || "Select tag or type to create..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search or create tag..." 
+                    value={tagInput}
+                    onValueChange={setTagInput}
+                  />
+                  <CommandList>
+                    <CommandEmpty>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start text-sm"
+                        onClick={() => addTag()}
+                      >
+                        Create "{tagInput}"
+                      </Button>
+                    </CommandEmpty>
+                    <CommandGroup heading="Available Tags">
+                      {availableTags
+                        .filter(tag => !form.tags.includes(tag))
+                        .map((tag) => (
+                          <CommandItem
+                            key={tag}
+                            value={tag}
+                            onSelect={() => addTag(tag)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                form.tags.includes(tag) ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {tag}
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         <Button type="submit" className="w-full gradient-primary gap-2">

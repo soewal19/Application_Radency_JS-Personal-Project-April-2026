@@ -8,7 +8,7 @@ import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAppStore } from '@/store/useAppStore';
 import { socketService } from '@/services/socket';
-import { CalendarDays, Plus, HelpCircle, Home, Users, Zap } from 'lucide-react';
+import { CalendarDays, Plus, HelpCircle, Home, Users, Zap, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -20,6 +20,7 @@ const navItems = [
   { to: '/events', label: 'Events', icon: Home },
   { to: '/events/create', label: 'Create', icon: Plus },
   { to: '/assistant', label: 'Assistant', icon: Zap },
+  { to: '/agents', label: 'Agents', icon: Bot },
   { to: '/my-events', label: 'My Events', icon: CalendarDays },
   { to: '/users', label: 'Users', icon: Users },
   { to: '/help', label: 'Help', icon: HelpCircle },

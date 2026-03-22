@@ -8,7 +8,7 @@
 
 import { API_BASE_URL, isAllowedOrigin } from '@/config/whitelist';
 import { logger } from '@/lib/logger';
-import type { AuthResponse, LoginDto, RegisterDto } from '@/types/auth';
+import type { AuthResponse, IUser, LoginDto, RegisterDto } from '@/types/auth';
 import type { CreateEventDto, EventsListResponse, EventsQueryParams, IEvent, UpdateEventDto } from '@/types/event';
 
 /** Lazy import to avoid circular dependency — resolved at runtime */
@@ -52,7 +52,7 @@ class ApiService {
     return headers;
   }
 
-  private async request<T>(endpoint: string, options?: RequestInit, isRetry = false): Promise<T> {
+  public async request<T>(endpoint: string, options?: RequestInit, isRetry = false): Promise<T> {
     const method = options?.method ?? 'GET';
     const start = performance.now();
     logger.debug(`${method} ${endpoint}`, 'API');

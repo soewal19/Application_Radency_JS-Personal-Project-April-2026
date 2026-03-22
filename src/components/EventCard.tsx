@@ -24,6 +24,36 @@ const categoryColors: Record<string, string> = {
   sport: 'bg-muted text-muted-foreground border-border',
 };
 
+/**
+ * Generates a stable color for a tag based on its name.
+ */
+const getTagStyles = (tag: string) => {
+  const colors = [
+    'bg-blue-500/10 text-blue-600 border-blue-500/20',
+    'bg-purple-500/10 text-purple-600 border-purple-500/20',
+    'bg-pink-500/10 text-pink-600 border-pink-500/20',
+    'bg-orange-500/10 text-orange-600 border-orange-500/20',
+    'bg-green-500/10 text-green-600 border-green-500/20',
+    'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+    'bg-red-500/10 text-red-600 border-red-500/20',
+    'bg-teal-500/10 text-teal-600 border-teal-500/20',
+    'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+  ];
+  
+  // Requirement 3 (ai-generated tag): special styling
+  if (tag.toLowerCase() === 'ai-generated') {
+    return 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold';
+  }
+
+  // Simple hash function to get stable index
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) {
+    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
+
 interface EventCardProps {
   event: IEvent;
   index: number;
@@ -38,7 +68,16 @@ const EventCard = ({ event, index }: EventCardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="relative"
     >
+      {event.creatorType === 'ai' && (
+        <Badge 
+          className="absolute -top-2 -right-2 z-10 bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-none shadow-lg animate-pulse"
+        >
+          <Zap className="mr-1 h-3 w-3 fill-current" />
+          Created with AI assistance
+        </Badge>
+      )}
       <ElectricCard>
         <div className="p-5">
           <div className="mb-3 flex items-start justify-between">
@@ -81,7 +120,13 @@ const EventCard = ({ event, index }: EventCardProps) => {
           {event.tags?.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
               {event.tags.slice(0, 5).map((tag) => (
-                <Badge key={tag} variant="outline" className="text-[10px]">{tag}</Badge>
+                <Badge 
+                  key={tag} 
+                  variant="outline" 
+                  className={`text-[10px] transition-colors ${getTagStyles(tag)}`}
+                >
+                  {tag}
+                </Badge>
               ))}
               {event.tags.length > 5 && (
                 <span className="text-[10px] text-muted-foreground">+{event.tags.length - 5} more</span>

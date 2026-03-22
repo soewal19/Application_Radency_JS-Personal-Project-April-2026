@@ -52,4 +52,10 @@ export class CreateEventDto {
   @MinLength(1, { each: true, message: 'Tags cannot be empty' })
   @MaxLength(30, { each: true, message: 'Tags must be under 30 characters' })
   tags?: string[];
+
+  @ApiProperty({ example: 'manual', required: false, enum: ['manual', 'ai'] })
+  @IsOptional()
+  @IsString()
+  @IsEnum(['manual', 'ai'], { message: 'Invalid creator type' })
+  creatorType?: string;
 }

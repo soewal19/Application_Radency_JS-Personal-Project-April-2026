@@ -130,7 +130,7 @@ export class EventsService {
 
   async create(dto: CreateEventDto, userId: string) {
     this.logger.debug(`Creating event for user ${userId}: ${dto.title}`);
-    const { tags: dtoTags, ...rest } = dto as any;
+    const { tags: dtoTags, creatorType, ...rest } = dto as any;
 
     // Fetch user to get the organizer name
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -140,6 +140,14 @@ export class EventsService {
     }
 
     const tags = (dtoTags || []).slice(0, 5).map((tag: string) => tag.trim()).filter(Boolean);
+    
+    // Requirement 3: Add "ai-generated" tag for AI-created events
+    if (creatorType === 'ai' && !tags.some((t: string) => t.toLowerCase() === 'ai-generated')) {
+      if (tags.length < 5) {
+        tags.push('ai-generated');
+      }
+    }
+
     const connectOrCreate = tags.map((tag: string) => ({
       where: { normalized: tag.toLowerCase() },
       create: { name: tag, normalized: tag.toLowerCase() },
@@ -163,6 +171,7 @@ export class EventsService {
           date: eventDate,
           organizerId: userId,
           organizerName: user.name,
+          creatorType: creatorType || 'manual', // Requirement 4
           tags: connectOrCreate.length ? { connectOrCreate } : undefined,
         },
         include: { tags: true },
@@ -170,6 +179,8 @@ export class EventsService {
 
       const result = { ...event, tags: event.tags?.map((t) => t.name) ?? [] };
       this.logger.log(`Event created successfully: ${event.title} (ID: ${event.id})`);
+      
+      // Requirement 1: Emit created event to notify all clients
       this.eventsGateway.emitEvent('event:created', result);
       return result;
     } catch (error) {

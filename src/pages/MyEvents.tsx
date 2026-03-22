@@ -69,19 +69,29 @@ const isSameDay = (a: Date, b: Date) =>
 
 const getTagColor = (tag?: string) => {
   if (!tag) return 'bg-primary/10 text-primary border-primary/20';
-  const colors: Record<string, string> = {
-    tech: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-    music: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
-    art: 'bg-pink-500/10 text-pink-600 border-pink-500/20',
-    sport: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
-    food: 'bg-green-500/10 text-green-600 border-green-500/20',
-    business: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
-    charity: 'bg-red-500/10 text-red-600 border-red-500/20',
-    health: 'bg-teal-500/10 text-teal-600 border-teal-500/20',
-    education: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
-  };
-  const normalized = tag.toLowerCase();
-  return colors[normalized] || 'bg-primary/10 text-primary border-primary/20';
+  
+  const colors = [
+    'bg-blue-500/10 text-blue-600 border-blue-500/20',
+    'bg-purple-500/10 text-purple-600 border-purple-500/20',
+    'bg-pink-500/10 text-pink-600 border-pink-500/20',
+    'bg-orange-500/10 text-orange-600 border-orange-500/20',
+    'bg-green-500/10 text-green-600 border-green-500/20',
+    'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+    'bg-red-500/10 text-red-600 border-red-500/20',
+    'bg-teal-500/10 text-teal-600 border-teal-500/20',
+    'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+  ];
+
+  if (tag.toLowerCase() === 'ai-generated') {
+    return 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold';
+  }
+
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) {
+    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
 };
 
 const MyEvents = () => {

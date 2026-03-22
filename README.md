@@ -87,7 +87,7 @@ Detailed C4 diagram: [docs/C4.md](docs/C4.md)
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/Application_Radency_JS.git
+git clone https://github.com/soewal19/Application_Radency_JS-Personal-Project-April-2026
 cd Application_Radency_JS
 
 # 2. Start the backend

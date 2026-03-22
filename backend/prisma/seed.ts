@@ -85,6 +85,65 @@ async function main() {
   }
   console.log(`✅ Created ${eventTitles.length} sample events with tags`);
 
+  // Create initial Skills (Tools)
+  const skills = [
+    { name: 'searchEvents', description: 'Search for events by city, date, or category.', parameters: JSON.stringify({ city: 'string', dateFrom: 'string', dateTo: 'string', category: 'string' }) },
+    { name: 'createEvent', description: 'Create a new event.', parameters: JSON.stringify({ title: 'string', description: 'string', date: 'string', location: 'string', category: 'string' }) },
+    { name: 'getEventsStats', description: 'Get event statistics.', parameters: JSON.stringify({ userId: 'string' }) },
+    { name: 'getEventDetails', description: 'Get detailed information about a specific event.', parameters: JSON.stringify({ id: 'string' }) },
+    { name: 'updateEvent', description: 'Update an existing event.', parameters: JSON.stringify({ id: 'string', data: 'object' }) },
+    { name: 'deleteEvent', description: 'Delete an event.', parameters: JSON.stringify({ id: 'string' }) },
+    { name: 'registerSomeone', description: 'Register another user for an event.', parameters: JSON.stringify({ eventId: 'string', email: 'string' }) },
+  ];
+
+  const createdSkills = await Promise.all(
+    skills.map(skill => 
+      prisma.skill.upsert({
+        where: { name: skill.name },
+        update: {},
+        create: skill,
+      })
+    )
+  );
+  console.log(`✅ Created ${createdSkills.length} skills`);
+
+  // Create initial Agents
+  const agents = [
+    {
+      name: 'Discovery Scout',
+      role: 'Event Search Specialist',
+      systemPrompt: 'You are the Discovery Scout. You specialize in finding the perfect events for users.',
+      skills: ['searchEvents', 'getEventDetails'],
+    },
+    {
+      name: 'Event Manager',
+      role: 'Operations Specialist',
+      systemPrompt: 'You are the Event Manager. You handle the "heavy lifting" of creating, modifying, and deleting events.',
+      skills: ['createEvent', 'updateEvent', 'deleteEvent', 'registerSomeone'],
+    },
+    {
+      name: 'Data Insight',
+      role: 'Analytics Specialist',
+      systemPrompt: 'You are Data Insight. You turn raw event data into meaningful statistics.',
+      skills: ['getEventsStats'],
+    },
+  ];
+
+  for (const agent of agents) {
+    const agentSkills = createdSkills.filter(s => agent.skills.includes(s.name));
+    await prisma.agent.create({
+      data: {
+        name: agent.name,
+        role: agent.role,
+        systemPrompt: agent.systemPrompt,
+        skills: {
+          connect: agentSkills.map(s => ({ id: s.id })),
+        },
+      },
+    });
+  }
+  console.log(`✅ Created ${agents.length} initial agents`);
+
   console.log('🎉 Seeding complete!');
 }
 

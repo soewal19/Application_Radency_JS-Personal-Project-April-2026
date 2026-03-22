@@ -58,10 +58,11 @@ async function bootstrap() {
       `- **Authentication**: JWT-based register/login with bcrypt password hashing\n` +
       `- **Events CRUD**: Create, read, update, delete events with pagination\n` +
       `- **Participants**: Join/leave events with atomic transactions\n` +
+      `- **AI Swarm**: Specialized agents for search, management, and analytics\n` +
       `- **Real-time**: Socket.IO WebSocket notifications\n` +
       `- **Validation**: class-validator DTOs with strict whitelist\n\n` +
       `### Tech Stack\n` +
-      `NestJS 10 + Fastify · Prisma ORM · PostgreSQL · Passport JWT · Socket.IO`
+      `NestJS 10 + Fastify · Prisma ORM · SQLite/PostgreSQL · Passport JWT · Socket.IO`
     )
     .setVersion('1.0.0')
     .setContact('EventHub Team', '', 'admin@eventhub.com')
@@ -73,11 +74,12 @@ async function bootstrap() {
     .addTag('auth', 'User registration and authentication')
     .addTag('events', 'Event CRUD, join/leave, pagination & filtering')
     .addTag('ai', 'AI assistant (tool calling) for event discovery')
+    .addTag('agents', 'Custom AI agent management and skill assignment')
     .addServer(`http://localhost:${process.env.PORT || 3000}`, 'Local Development')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
+  SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
       docExpansion: 'list',
