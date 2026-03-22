@@ -27,4 +27,18 @@ export class HealthController {
       };
     }
   }
+
+  @Get('env')
+  @ApiOperation({ summary: 'Debug endpoint - check environment variables' })
+  getEnv() {
+    const dbUrl = process.env.DATABASE_URL || 'NOT_SET';
+    const maskedUrl = dbUrl.replace(/:([^@]+)@/, ':****@');
+    
+    return {
+      NODE_ENV: process.env.NODE_ENV || 'NOT_SET',
+      DATABASE_URL: maskedUrl,
+      PORT: process.env.PORT || 'NOT_SET',
+      ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'NOT_SET',
+    };
+  }
 }

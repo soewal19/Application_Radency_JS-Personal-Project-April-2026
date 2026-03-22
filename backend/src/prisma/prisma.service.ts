@@ -12,6 +12,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
+    // In production, ensure we use the correct DATABASE_URL from environment
+    // This overrides any .env file that might be bundled
+    const databaseUrl = process.env.DATABASE_URL;
+    
     super({
       log: [
         { emit: 'event', level: 'query' },
@@ -21,10 +25,18 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       ],
       datasources: {
         db: {
-          url: process.env.DATABASE_URL,
+          url: databaseUrl,
         },
       },
     });
+    
+    // Log after super() call
+    this.logger.log(`Initializing Prisma with DATABASE_URL: ${databaseUrl?.replace(/:([^@]+)@/, ':****@')}`);
+    
+    // If DATABASE_URL points to localhost in production, warn about it
+    if (process.env.NODE_ENV === 'production' && databaseUrl?.includes('localhost')) {
+      this.logger.error('ERROR: Production build using localhost database! Check DATABASE_URL environment variable.');
+    }
   }
 
   async onModuleInit() {
