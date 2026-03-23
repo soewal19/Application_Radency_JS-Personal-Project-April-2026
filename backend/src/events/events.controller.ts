@@ -3,18 +3,16 @@
  * @description REST API for event management with enhanced Swagger docs
  */
 
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import type { FastifyRequest } from 'fastify';
 import type { Request as ExpressRequest } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { IS_PUBLIC_KEY, Public } from '../auth/auth.constants';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { QueryEventsDto } from './dto/query-events.dto';
-
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 type AuthenticatedRequest = (ExpressRequest | FastifyRequest) & { user: { id: string; email: string } };
 
