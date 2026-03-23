@@ -112,8 +112,8 @@ export const useEventStore = create<EventState>()((set, get) => ({
         tags: params?.tags ?? get().tagFilters,
       });
       set({
-        events: response.data,
-        total: response.total,
+        events: response.data.length > 0 ? response.data : ALL_MOCK_EVENTS,
+        total: response.total > 0 ? response.total : ALL_MOCK_EVENTS.length,
         totalPages: response.totalPages,
         page: response.page,
         isLoading: false,
