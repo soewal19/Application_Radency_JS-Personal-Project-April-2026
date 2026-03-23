@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useEventStore } from '@/store/useEventStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { socketService } from '@/services/socket';
 import { Button } from '@/components/ui/button';
 import type { IEvent, ITag } from '@/types/event';
 import { Badge } from '@/components/ui/badge';

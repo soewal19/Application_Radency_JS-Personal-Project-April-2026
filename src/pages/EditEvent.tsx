@@ -80,6 +80,7 @@ const EditEvent = () => {
       await updateEvent(id, {
         ...form,
         date: form.date,
+        category: form.category as EventCategory,
       });
       toast({ title: 'Event updated', description: `"${form.title}" has been updated successfully.` });
       navigate(`/events/${id}`);
