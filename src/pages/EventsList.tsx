@@ -1,6 +1,6 @@
 /**
  * @module Events List Page
- * @description List of events with pagination (15 per page), search and category filters
+ * @description List of events with pagination (6 per page), search and category filters
  */
 
 import { useEffect, useMemo, useState } from 'react';

@@ -1,6 +1,6 @@
 /**
  * @module Event Store
- * @description Zustand store for events with pagination (15 records per page)
+ * @description Zustand store for events with pagination (6 records per page)
  * Single Responsibility Principle (SOLID)
  */
 
@@ -10,7 +10,7 @@ import { apiService } from '@/services/api';
 import { socketService } from '@/services/socket';
 import { logger } from '@/lib/logger';
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 6;
 
 /** Mock data for demo mode */
 const generateMockEvents = (): IEvent[] => {

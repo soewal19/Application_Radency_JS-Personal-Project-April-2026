@@ -15,7 +15,7 @@ export class QueryEventsDto {
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  limit?: number = 15;
+  limit?: number = 6;
 
   @ApiPropertyOptional()
   @IsOptional()

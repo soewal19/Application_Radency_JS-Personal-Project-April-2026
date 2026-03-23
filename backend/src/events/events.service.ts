@@ -98,7 +98,7 @@ export class EventsService {
   }
 
   async findByUser(userId: string, query: QueryEventsDto) {
-    const { page = 1, limit = 15 } = query;
+    const { page = 1, limit = 6 } = query;
 
     const [data, total] = await Promise.all([
       this.prisma.event.findMany({

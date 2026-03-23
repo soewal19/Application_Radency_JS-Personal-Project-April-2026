@@ -26,7 +26,7 @@ export class EventsController {
   @ApiOperation({ summary: 'Get paginated list of events', description: 'Returns events with pagination, search and category filters' })
   @ApiResponse({ status: 200, description: 'Paginated events list with metadata (total, page, totalPages)' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 15 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 6 })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({ name: 'category', required: false, enum: ['conference', 'workshop', 'meetup', 'webinar', 'social', 'sport'] })
   @ApiQuery({ name: 'sortBy', required: false, enum: ['date', 'title', 'createdAt'] })
