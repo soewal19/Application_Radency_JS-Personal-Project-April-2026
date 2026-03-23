@@ -9,7 +9,7 @@
 import { API_BASE_URL, isAllowedOrigin } from '@/config/whitelist';
 import { logger } from '@/lib/logger';
 import type { AuthResponse, IUser, LoginDto, RegisterDto } from '@/types/auth';
-import type { CreateEventDto, EventsListResponse, EventsQueryParams, IEvent, UpdateEventDto } from '@/types/event';
+import type { CreateEventDto, EventsListResponse, EventsQueryParams, IEvent, ITag, UpdateEventDto } from '@/types/event';
 
 /** Lazy import to avoid circular dependency — resolved at runtime */
 const getAuthStore = () => import('@/store/useAuthStore').then(m => m.useAuthStore);
@@ -171,8 +171,8 @@ class ApiService {
     return this.request<IEvent>(`/events/${encodeURIComponent(id)}`);
   }
 
-  async getTags(): Promise<string[]> {
-    return this.request<string[]>(`/events/tags`);
+  async getTags(): Promise<ITag[]> {
+    return this.request<ITag[]>(`/events/tags`);
   }
 
   async createEvent(dto: CreateEventDto): Promise<IEvent> {

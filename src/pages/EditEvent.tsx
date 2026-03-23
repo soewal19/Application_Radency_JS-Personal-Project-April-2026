@@ -53,7 +53,7 @@ const EditEvent = () => {
         location: currentEvent.location,
         category: currentEvent.category,
         maxParticipants: currentEvent.maxParticipants,
-        tags: currentEvent.tags ?? [],
+        tags: (currentEvent.tags || []).map(t => typeof t === 'string' ? t : t.name),
       });
     }
   }, [currentEvent]);
@@ -195,20 +195,20 @@ const EditEvent = () => {
                     </CommandEmpty>
                     <CommandGroup heading="Available Tags">
                       {availableTags
-                        .filter(tag => !form.tags.includes(tag))
+                        .filter(tag => !form.tags.includes(tag.name))
                         .map((tag) => (
                           <CommandItem
-                            key={tag}
-                            value={tag}
-                            onSelect={() => addTag(tag)}
+                            key={tag.id}
+                            value={tag.name}
+                            onSelect={() => addTag(tag.name)}
                           >
                             <Check
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                form.tags.includes(tag) ? "opacity-100" : "opacity-0"
+                                form.tags.includes(tag.name) ? "opacity-100" : "opacity-0"
                               )}
                             />
-                            {tag}
+                            {tag.name}
                           </CommandItem>
                         ))}
                     </CommandGroup>

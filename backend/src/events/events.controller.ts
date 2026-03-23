@@ -42,6 +42,13 @@ export class EventsController {
     return this.eventsService.findByUser(req.user.id, query);
   }
 
+  @Get('tags')
+  @ApiOperation({ summary: 'Get all available tags with colors' })
+  @ApiResponse({ status: 200, description: 'Tags list' })
+  async getTags() {
+    return this.eventsService.getTags();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get event by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Event UUID' })

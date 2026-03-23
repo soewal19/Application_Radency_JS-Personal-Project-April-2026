@@ -49,7 +49,7 @@ const buildEventsSummary = (events: any[]) => {
     .filter((e) => new Date(e.date) >= new Date())
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 10)
-    .map((e) => `- ${e.title} (${new Date(e.date).toLocaleString()}) [${(e.tags || []).join(', ')}]`);
+    .map((e) => `- ${e.title} (${new Date(e.date).toLocaleString()}) [${(e.tags || []).map((t: any) => typeof t === 'string' ? t : t.name).join(', ')}]`);
 
   return buildEventsSummaryContext(upcoming);
 };
@@ -74,7 +74,7 @@ const pickChartData = (events: ReturnType<typeof useEventStore>['myEvents']) => 
   }
 
   events.forEach((e) => {
-    const tag = e.tags?.[0] ?? 'Other';
+    const tag = typeof e.tags?.[0] === 'string' ? e.tags[0] : (e.tags?.[0]?.name ?? 'Other');
     byTag[tag] = (byTag[tag] ?? 0) + 1;
   });
 

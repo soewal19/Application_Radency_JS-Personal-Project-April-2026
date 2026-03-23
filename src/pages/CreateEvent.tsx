@@ -196,33 +196,25 @@ const CreateEvent = () => {
                       onValueChange={setTagInput}
                     />
                     <CommandList>
-                      <CommandEmpty>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-start text-sm"
-                          onClick={() => addTag()}
-                        >
-                          Create "{tagInput}"
-                        </Button>
-                      </CommandEmpty>
-                      <CommandGroup heading="Available Tags">
-                        {availableTags
-                          .filter(tag => !form.tags.includes(tag))
-                          .map((tag) => (
-                            <CommandItem
-                              key={tag}
-                              value={tag}
-                              onSelect={() => addTag(tag)}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  form.tags.includes(tag) ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {tag}
-                            </CommandItem>
-                          ))}
+                      <CommandEmpty>No results found</CommandEmpty>
+                      <CommandGroup>
+                        {availableTags.map((tag) => (
+                          <CommandItem
+                            key={tag.id}
+                            onSelect={() => {
+                              addTag(tag.name);
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                form.tags.includes(tag.name) ? 'opacity-100' : 'opacity-0'
+                              )}
+                            />
+                            {tag.name}
+                          </CommandItem>
+                        ))}
                       </CommandGroup>
                     </CommandList>
                   </Command>

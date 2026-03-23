@@ -9,6 +9,7 @@ import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useEventStore } from '@/store/useEventStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
+import type { IEvent, ITag } from '@/types/event';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -46,6 +47,48 @@ import { useToast } from '@/hooks/use-toast';
 const categoryLabels: Record<string, string> = {
   conference: 'Conference', workshop: 'Workshop', meetup: 'Meetup',
   webinar: 'Webinar', social: 'Social', sport: 'Sport',
+};
+
+const getTagStyles = (tag: ITag | string) => {
+  const tagName = typeof tag === 'string' ? tag : tag.name;
+  const tagColor = typeof tag === 'string' ? null : tag.color;
+
+  if (tagName.toLowerCase() === 'ai-generated') {
+    return {
+      className: 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold',
+      style: {}
+    };
+  }
+
+  if (tagColor) {
+    return {
+      className: 'border-opacity-20',
+      style: { 
+        backgroundColor: `${tagColor}1a`,
+        color: tagColor,
+        borderColor: `${tagColor}33`
+      }
+    };
+  }
+
+  const colors = [
+    'bg-blue-500/10 text-blue-600 border-blue-500/20',
+    'bg-purple-500/10 text-purple-600 border-purple-500/20',
+    'bg-pink-500/10 text-pink-600 border-pink-500/20',
+    'bg-orange-500/10 text-orange-600 border-orange-500/20',
+    'bg-green-500/10 text-green-600 border-green-500/20',
+    'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+    'bg-red-500/10 text-red-600 border-red-500/20',
+    'bg-teal-500/10 text-teal-600 border-teal-500/20',
+    'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
+  ];
+
+  let hash = 0;
+  for (let i = 0; i < tagName.length; i++) {
+    hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return { className: colors[index], style: {} };
 };
 
 const EventDetails = () => {
@@ -250,11 +293,19 @@ const EventDetails = () => {
 
               {currentEvent.tags?.length ? (
                 <div className="mb-4 flex flex-wrap gap-2">
-                  {currentEvent.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+                  {currentEvent.tags.map((tag) => {
+                    const styles = getTagStyles(tag);
+                    return (
+                      <Badge 
+                        key={typeof tag === 'string' ? tag : tag.id} 
+                        variant="outline" 
+                        className={`text-[10px] uppercase tracking-widest ${styles.className}`}
+                        style={styles.style}
+                      >
+                        {typeof tag === 'string' ? tag : tag.name}
+                      </Badge>
+                    );
+                  })}
                 </div>
               ) : null}
 

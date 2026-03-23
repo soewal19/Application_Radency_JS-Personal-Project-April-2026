@@ -27,7 +27,18 @@ const generateMockEvents = (): IEvent[] => {
   ];
   const locations = ['New York', 'San Francisco', 'Online', 'London', 'Berlin', 'Tokyo'];
   const organizers = ['Alice', 'Bob', 'Charlie', 'Diana', 'Edward'];
-  const tagsPool = ['Tech', 'Art', 'Business', 'Music', 'Design', 'Health', 'Education'];
+  const tagsPool: ITag[] = [
+    { id: 't1', name: 'tech', normalized: 'tech', color: '#6366f1' },
+    { id: 't2', name: 'music', normalized: 'music', color: '#ec4899' },
+    { id: 't3', name: 'art', normalized: 'art', color: '#a855f7' },
+    { id: 't4', name: 'sport', normalized: 'sport', color: '#f97316' },
+    { id: 't5', name: 'food', normalized: 'food', color: '#22c55e' },
+    { id: 't6', name: 'business', normalized: 'business', color: '#3b82f6' },
+    { id: 't7', name: 'charity', normalized: 'charity', color: '#ef4444' },
+    { id: 't8', name: 'health', normalized: 'health', color: '#14b8a6' },
+    { id: 't9', name: 'education', normalized: 'education', color: '#eab308' },
+    { id: 't10', name: 'social', normalized: 'social', color: '#06b6d4' },
+  ];
 
   return titles.map((title, i) => {
     const tagCount = 1 + (i % 3);
@@ -66,7 +77,7 @@ interface EventState {
   searchQuery: string;
   categoryFilter: EventCategory | undefined;
   tagFilters: string[];
-  availableTags: string[];
+  availableTags: ITag[];
 
   fetchEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
   fetchMyEvents: (params?: Partial<EventsQueryParams>) => Promise<void>;
@@ -137,7 +148,7 @@ export const useEventStore = create<EventState>()((set, get) => ({
       }
       const tags = params?.tags ?? get().tagFilters;
       if (tags && tags.length) {
-        filtered = filtered.filter(e => e.tags?.some((t) => tags.includes(t)));
+        filtered = filtered.filter(e => e.tags?.some((t) => tags.includes(t.name)));
       }
       const currentPage = params?.page ?? page;
       const start = (currentPage - 1) * PAGE_SIZE;
@@ -180,7 +191,18 @@ export const useEventStore = create<EventState>()((set, get) => ({
       const tags = await apiService.getTags();
       set({ availableTags: tags });
     } catch (error) {
-      const tagsPool = ['Tech', 'Art', 'Business', 'Music', 'Design', 'Health', 'Education'];
+      const tagsPool: ITag[] = [
+        { id: 't1', name: 'tech', normalized: 'tech', color: '#6366f1' },
+        { id: 't2', name: 'music', normalized: 'music', color: '#ec4899' },
+        { id: 't3', name: 'art', normalized: 'art', color: '#a855f7' },
+        { id: 't4', name: 'sport', normalized: 'sport', color: '#f97316' },
+        { id: 't5', name: 'food', normalized: 'food', color: '#22c55e' },
+        { id: 't6', name: 'business', normalized: 'business', color: '#3b82f6' },
+        { id: 't7', name: 'charity', normalized: 'charity', color: '#ef4444' },
+        { id: 't8', name: 'health', normalized: 'health', color: '#14b8a6' },
+        { id: 't9', name: 'education', normalized: 'education', color: '#eab308' },
+        { id: 't10', name: 'social', normalized: 'social', color: '#06b6d4' },
+      ];
       set({ availableTags: tagsPool });
     }
   },
@@ -212,7 +234,7 @@ export const useEventStore = create<EventState>()((set, get) => ({
         id: `evt-${Date.now()}`,
         organizerId: '1',
         organizerName: 'You',
-        tags: eventData.tags ?? [],
+        tags: (eventData.tags ?? []).map(t => ({ id: t, name: t, normalized: t.toLowerCase(), color: '#6366f1' })),
         currentParticipants: 0,
         creatorType: (eventData as any).creatorType || 'manual',
         createdAt: new Date().toISOString(),

@@ -53,14 +53,11 @@ export class EventsService {
 
     const normalized = data.map(event => ({
       ...event,
-      tags: event.tags?.map(tag => tag.name) ?? [],
+      tags: event.tags ?? [],
     }));
 
     this.logger.debug(`findAll: page=${page}, total=${total}`);
     return { data: normalized, total, page, limit, totalPages: Math.ceil(total / limit) };
-
-    this.logger.debug(`findAll: page=${page}, total=${total}`);
-    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   /**
@@ -116,7 +113,7 @@ export class EventsService {
 
     const normalized = data.map(event => ({
       ...event,
-      tags: event.tags?.map(tag => tag.name) ?? [],
+      tags: event.tags ?? [],
     }));
 
     return { data: normalized, total, page, limit, totalPages: Math.ceil(total / limit) };
@@ -125,7 +122,7 @@ export class EventsService {
   async findOne(id: string) {
     const event = await this.prisma.event.findUnique({ where: { id }, include: { tags: true } });
     if (!event) throw new NotFoundException('Event not found');
-    return { ...event, tags: event.tags?.map(tag => tag.name) ?? [] };
+    return { ...event, tags: event.tags ?? [] };
   }
 
   async create(dto: CreateEventDto, userId: string) {
@@ -177,7 +174,7 @@ export class EventsService {
         include: { tags: true },
       });
 
-      const result = { ...event, tags: event.tags?.map((t) => t.name) ?? [] };
+      const result = { ...event, tags: event.tags ?? [] };
       this.logger.log(`Event created successfully: ${event.title} (ID: ${event.id})`);
       
       // Requirement 1: Emit created event to notify all clients
@@ -234,7 +231,7 @@ export class EventsService {
         include: { tags: true },
       });
 
-      const result = { ...updated, tags: updated.tags?.map((t) => t.name) ?? [] };
+      const result = { ...updated, tags: updated.tags ?? [] };
       this.logger.log(`Event updated: ${updated.title}`);
       this.eventsGateway.emitEvent('event:updated', result);
       return result;
@@ -273,11 +270,14 @@ export class EventsService {
       const updated = await tx.event.update({
         where: { id },
         data: { currentParticipants: { increment: 1 } },
+        include: { tags: true },
       });
 
+      const result = { ...updated, tags: updated.tags ?? [] };
       this.logger.log(`User ${userId} joined event ${id}`);
-      this.eventsGateway.emitEvent('event:joined', updated);
-      return updated;
+      this.eventsGateway.emitEvent('event:joined', result);
+      this.eventsGateway.emitEvent('event:updated', result);
+      return result;
     });
   }
 
@@ -300,11 +300,14 @@ export class EventsService {
       const updated = await tx.event.update({
         where: { id },
         data: { currentParticipants: { decrement: 1 } },
+        include: { tags: true },
       });
 
+      const result = { ...updated, tags: updated.tags ?? [] };
       this.logger.log(`User ${userId} left event ${id}`);
-      this.eventsGateway.emitEvent('event:left', updated);
-      return updated;
+      this.eventsGateway.emitEvent('event:left', result);
+      this.eventsGateway.emitEvent('event:updated', result);
+      return result;
     });
   }
 
@@ -343,8 +346,9 @@ export class EventsService {
   }
 
   async getTags() {
-    const tags = await this.prisma.tag.findMany({ orderBy: { name: 'asc' } });
-    return tags.map((tag) => tag.name);
+    return this.prisma.tag.findMany({
+      orderBy: { name: 'asc' },
+    });
   }
 
   async getEventsStats(userId?: string) {

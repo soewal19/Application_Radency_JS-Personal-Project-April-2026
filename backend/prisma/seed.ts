@@ -29,18 +29,35 @@ async function main() {
   const categories = ['conference', 'workshop', 'meetup', 'webinar', 'social', 'sport', 'music', 'art', 'food', 'tech'];
   const locations = ['Amsterdam', 'Berlin', 'London', 'New York', 'Tokyo', 'Paris', 'Sydney', 'Toronto', 'San Francisco', 'Online', 'Dubai', 'Singapore', 'Barcelona', 'Rome', 'Vienna'];
   
-  // First create tags
-  const tagNames = ['tech', 'music', 'art', 'sport', 'food', 'business', 'charity', 'health', 'education', 'social'];
+  // First create tags with colors
+  const tagsWithColors = [
+    { name: 'tech', color: '#6366f1' },
+    { name: 'music', color: '#ec4899' },
+    { name: 'art', color: '#a855f7' },
+    { name: 'sport', color: '#f97316' },
+    { name: 'food', color: '#22c55e' },
+    { name: 'business', color: '#3b82f6' },
+    { name: 'charity', color: '#ef4444' },
+    { name: 'health', color: '#14b8a6' },
+    { name: 'education', color: '#eab308' },
+    { name: 'social', color: '#06b6d4' },
+    { name: 'AI', color: '#f59e0b' },
+    { name: 'React', color: '#61dafb' },
+    { name: 'JavaScript', color: '#f7df1e' },
+    { name: 'Backend', color: '#ff4500' },
+    { name: 'ai-generated', color: '#8b5cf6' },
+  ];
+
   const createdTags = await Promise.all(
-    tagNames.map(async (name) => {
+    tagsWithColors.map(async (tag) => {
       return prisma.tag.upsert({
-        where: { normalized: name },
-        update: {},
-        create: { name, normalized: name },
+        where: { normalized: tag.name.toLowerCase() },
+        update: { color: tag.color },
+        create: { name: tag.name, normalized: tag.name.toLowerCase(), color: tag.color },
       });
     })
   );
-  console.log(`✅ Created/updated ${createdTags.length} tags`);
+  console.log(`✅ Created/updated ${createdTags.length} tags with colors`);
 
   const eventTitles = [
     { title: 'React Summit 2026', description: 'Annual React conference with top speakers from around the world', category: 'tech', maxParticipants: 500, tags: ['tech', 'education'] },

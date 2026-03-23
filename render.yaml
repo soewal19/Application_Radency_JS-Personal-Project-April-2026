@@ -26,7 +26,9 @@ services:
       - key: PORT
         value: "3000"
       - key: DATABASE_URL
-        value: "postgresql://eventhub:45DIuDeBbXSE0m6aDYuYSn9E8wDKCiyh@dpg-d7097q3uibrs73e5uub0-a/eventhub_anbf"
+        fromDatabase:
+          name: eventhub-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS

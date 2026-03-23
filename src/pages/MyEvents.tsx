@@ -67,9 +67,28 @@ const getWeekDays = (date: Date) => {
 const isSameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
-const getTagColor = (tag?: string) => {
-  if (!tag) return 'bg-primary/10 text-primary border-primary/20';
-  
+const getTagStyles = (tag: ITag | string) => {
+  const tagName = typeof tag === 'string' ? tag : tag.name;
+  const tagColor = typeof tag === 'string' ? null : tag.color;
+
+  if (tagName.toLowerCase() === 'ai-generated') {
+    return {
+      className: 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold',
+      style: {}
+    };
+  }
+
+  if (tagColor) {
+    return {
+      className: 'border-opacity-20',
+      style: { 
+        backgroundColor: `${tagColor}1a`,
+        color: tagColor,
+        borderColor: `${tagColor}33`
+      }
+    };
+  }
+
   const colors = [
     'bg-blue-500/10 text-blue-600 border-blue-500/20',
     'bg-purple-500/10 text-purple-600 border-purple-500/20',
@@ -82,16 +101,12 @@ const getTagColor = (tag?: string) => {
     'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
   ];
 
-  if (tag.toLowerCase() === 'ai-generated') {
-    return 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold';
-  }
-
   let hash = 0;
-  for (let i = 0; i < tag.length; i++) {
-    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < tagName.length; i++) {
+    hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
   }
   const index = Math.abs(hash) % colors.length;
-  return colors[index];
+  return { className: colors[index], style: {} };
 };
 
 const MyEvents = () => {
@@ -217,6 +232,18 @@ const MyEvents = () => {
             <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
             <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{event.location}</span>
             <span className="flex items-center gap-1"><Users className="h-3 w-3" />{event.currentParticipants}/{event.maxParticipants}</span>
+            {event.tags?.map((tag) => {
+              const styles = getTagStyles(tag);
+              return (
+                <span 
+                  key={typeof tag === 'string' ? tag : tag.id} 
+                  className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider ${styles.className}`}
+                  style={styles.style}
+                >
+                  {typeof tag === 'string' ? tag : tag.name}
+                </span>
+              );
+            })}
           </div>
         </Link>
         {showActions && (
@@ -272,7 +299,8 @@ const MyEvents = () => {
                     >
                       <Link
                         to={`/events/${evt.id}`}
-                        className={`block truncate rounded px-1 py-0.5 text-[10px] font-medium border transition-colors ${getTagColor(evt.tags?.[0])} hover:opacity-80`}
+                        className={`block truncate rounded px-1 py-0.5 text-[10px] font-medium border transition-colors ${evt.tags?.[0] ? getTagStyles(evt.tags[0]).className : ''} hover:opacity-80`}
+                        style={evt.tags?.[0] ? getTagStyles(evt.tags[0]).style : {}}
                       >
                         {evt.title}
                       </Link>
@@ -321,7 +349,8 @@ const MyEvents = () => {
                       >
                         <Link
                           to={`/events/${evt.id}`}
-                          className={`block truncate rounded px-1.5 py-1 text-[10px] font-medium border transition-colors mb-0.5 ${getTagColor(evt.tags?.[0])} hover:opacity-80`}
+                          className={`block truncate rounded px-1.5 py-1 text-[10px] font-medium border transition-colors mb-0.5 ${evt.tags?.[0] ? getTagStyles(evt.tags[0]).className : ''} hover:opacity-80`}
+                          style={evt.tags?.[0] ? getTagStyles(evt.tags[0]).style : {}}
                         >
                           {evt.title}
                         </Link>

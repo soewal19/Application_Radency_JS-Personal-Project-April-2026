@@ -6,7 +6,7 @@
 import { Link } from 'react-router-dom';
 import { CalendarDays, MapPin, Users, Zap, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { IEvent } from '@/types/event';
+import type { IEvent, ITag } from '@/types/event';
 import { Badge } from '@/components/ui/badge';
 import ElectricCard from '@/components/ElectricCard';
 
@@ -25,9 +25,31 @@ const categoryColors: Record<string, string> = {
 };
 
 /**
- * Generates a stable color for a tag based on its name.
+ * Generates a stable color for a tag based on its name or uses the provided color.
  */
-const getTagStyles = (tag: string) => {
+const getTagStyles = (tag: ITag | string) => {
+  const tagName = typeof tag === 'string' ? tag : tag.name;
+  const tagColor = typeof tag === 'string' ? null : tag.color;
+
+  // Requirement 3 (ai-generated tag): special styling
+  if (tagName.toLowerCase() === 'ai-generated') {
+    return {
+      className: 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold',
+      style: {}
+    };
+  }
+
+  if (tagColor) {
+    return {
+      className: 'border-opacity-20',
+      style: { 
+        backgroundColor: `${tagColor}1a`, // 10% opacity hex
+        color: tagColor,
+        borderColor: `${tagColor}33` // 20% opacity hex
+      }
+    };
+  }
+
   const colors = [
     'bg-blue-500/10 text-blue-600 border-blue-500/20',
     'bg-purple-500/10 text-purple-600 border-purple-500/20',
@@ -40,18 +62,13 @@ const getTagStyles = (tag: string) => {
     'bg-cyan-500/10 text-cyan-600 border-cyan-500/20',
   ];
   
-  // Requirement 3 (ai-generated tag): special styling
-  if (tag.toLowerCase() === 'ai-generated') {
-    return 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-indigo-600 border-indigo-500/30 font-semibold';
-  }
-
   // Simple hash function to get stable index
   let hash = 0;
-  for (let i = 0; i < tag.length; i++) {
-    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < tagName.length; i++) {
+    hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
   }
   const index = Math.abs(hash) % colors.length;
-  return colors[index];
+  return { className: colors[index], style: {} };
 };
 
 interface EventCardProps {
@@ -119,15 +136,19 @@ const EventCard = ({ event, index }: EventCardProps) => {
 
           {event.tags?.length ? (
             <div className="mt-3 flex flex-wrap gap-2">
-              {event.tags.slice(0, 5).map((tag) => (
-                <Badge 
-                  key={tag} 
-                  variant="outline" 
-                  className={`text-[10px] transition-colors ${getTagStyles(tag)}`}
-                >
-                  {tag}
-                </Badge>
-              ))}
+              {event.tags.slice(0, 5).map((tag) => {
+                const styles = getTagStyles(tag);
+                return (
+                  <Badge 
+                    key={typeof tag === 'string' ? tag : tag.id} 
+                    variant="outline" 
+                    className={`text-[10px] transition-colors ${styles.className}`}
+                    style={styles.style}
+                  >
+                    {typeof tag === 'string' ? tag : tag.name}
+                  </Badge>
+                );
+              })}
               {event.tags.length > 5 && (
                 <span className="text-[10px] text-muted-foreground">+{event.tags.length - 5} more</span>
               )}

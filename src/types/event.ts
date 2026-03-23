@@ -4,6 +4,13 @@
  * Следует принципу Interface Segregation (SOLID)
  */
 
+export interface ITag {
+  id: string;
+  name: string;
+  normalized: string;
+  color: string;
+}
+
 export interface IEvent {
   id: string;
   title: string;
@@ -11,7 +18,7 @@ export interface IEvent {
   date: string;
   location: string;
   category: EventCategory;
-  tags: string[];
+  tags: ITag[];
   maxParticipants: number;
   currentParticipants: number;
   organizerId: string;
