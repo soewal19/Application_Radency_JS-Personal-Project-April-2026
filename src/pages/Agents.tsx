@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Bot, Plus, Trash2, Zap, User, ExternalLink, BrainCircuit, X, AlertCircle, RefreshCw } from 'lucide-react';
+import { Bot, Plus, Trash2, Zap, User, ExternalLink, Cpu, X, AlertCircle, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -412,7 +412,7 @@ const Agents = () => {
                   <div className="space-y-2 border-t pt-4">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold uppercase text-muted-foreground flex items-center gap-1">
-                        <BrainCircuit className="h-3 w-3" /> Knowledge Base
+                        <Cpu className="h-3 w-3" /> Knowledge Base
                       </p>
                       <Button 
                         variant="ghost" 
@@ -493,7 +493,7 @@ const Agents = () => {
             </div>
             <DialogFooter>
               <Button type="submit" className="gap-2">
-                <BrainCircuit className="h-4 w-4" />
+                <Cpu className="h-4 w-4" />
                 Add to Memory
               </Button>
             </DialogFooter>
