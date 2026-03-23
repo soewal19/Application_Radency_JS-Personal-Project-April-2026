@@ -119,11 +119,4 @@ export class EventsController {
   ) {
     return this.eventsService.registerSomeone(id, req.user.id, email);
   }
-
-  @Get('tags')
-  @ApiOperation({ summary: 'Get all tags' })
-  @ApiResponse({ status: 200, description: 'List of tags' })
-  async getTags() {
-    return this.eventsService.getTags();
-  }
 }
