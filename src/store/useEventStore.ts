@@ -189,15 +189,20 @@ export const useEventStore = create<EventState>()((set, get) => ({
     set({ isLoading: true });
     logger.store('Events', 'createEvent', { title: eventData.title });
     try {
-      // Requirement 1: Use REST API instead of Socket for creating to ensure direct feedback
       const created = await apiService.createEvent(eventData as any);
       
-      // Update local state immediately
-      set((state) => ({
-        events: [created, ...state.events].slice(0, PAGE_SIZE),
-        myEvents: [created, ...state.myEvents],
-        isLoading: false
-      }));
+      // Update local state immediately (Optimistic UI)
+      set((state) => {
+        // Only add if not already present (socket might have added it already)
+        if (state.events.some(e => e.id === created.id)) {
+          return { isLoading: false };
+        }
+        return {
+          events: [created, ...state.events].slice(0, PAGE_SIZE),
+          myEvents: [created, ...state.myEvents],
+          isLoading: false
+        };
+      });
       
       return created;
     } catch (error) {
