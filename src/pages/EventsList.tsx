@@ -10,7 +10,7 @@ import PaginationControls from '@/components/PaginationControls';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, X, Sparkles, Plus } from 'lucide-react';
-import { EventCategory } from '@/types/event';
+import { EventCategory, ITag } from '@/types/event';
 import { motion } from 'framer-motion';
 import { apiService } from '@/services/api';
 import { Link } from 'react-router-dom';
