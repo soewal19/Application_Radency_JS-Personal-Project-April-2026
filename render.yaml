@@ -27,7 +27,7 @@ services:
       - key: PORT
         value: "3000"
       - key: DATABASE_URL
-        value: "postgresql://applicationdb_4xkt_user:mi9hdAwbJJNbsVEbDWGDDkLz8UOJkmBp@dpg-d6s7bgshg0os73f1ppm0-a/application_radency"
+        value: "postgresql://admin:mi9hdAwbJJNbsVEbDWGDDkLz8UOJkmBp@dpg-d6s7bgshg0os73f1ppm0-a/application_radency"
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
