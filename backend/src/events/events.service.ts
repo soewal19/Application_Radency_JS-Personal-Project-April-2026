@@ -208,10 +208,23 @@ export class EventsService {
 
     const { tags: dtoTags, ...rest } = dto as any;
     const tags = (dtoTags || []).slice(0, 5).map((tag: string) => tag.trim()).filter(Boolean);
-    const connectOrCreate = tags.map((tag: string) => ({
-      where: { normalized: tag.toLowerCase() },
-      create: { name: tag, normalized: tag.toLowerCase() },
-    }));
+    const connectOrCreate = tags.map((tag: string) => {
+      // Generate a consistent color based on the tag name
+      const colors = [
+        '#6366f1', '#ec4899', '#a855f7', '#f97316', '#22c55e',
+        '#3b82f6', '#ef4444', '#14b8a6', '#eab308', '#06b6d4',
+      ];
+      let hash = 0;
+      for (let i = 0; i < tag.length; i++) {
+        hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const color = colors[Math.abs(hash) % colors.length];
+
+      return {
+        where: { normalized: tag.toLowerCase() },
+        create: { name: tag, normalized: tag.toLowerCase(), color },
+      };
+    });
 
     // Data for update
     const updateData: any = {
