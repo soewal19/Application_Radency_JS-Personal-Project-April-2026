@@ -30,16 +30,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       },
     });
     
-    // Log after super() call
-    this.logger.log(`Initializing Prisma with DATABASE_URL: ${databaseUrl?.replace(/:([^@]+)@/, ':****@')}`);
-    
-    // Log ALL environment variables for debugging
-    this.logger.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-    this.logger.log(`All env keys: ${Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('PORT')).join(', ')}`);
+    // Log after super() call - use console.log for immediate output
+    console.log(`[PrismaService] Initializing with DATABASE_URL: ${databaseUrl?.replace(/:([^@]+)@/, ':****@')}`);
+    console.log(`[PrismaService] NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`[PrismaService] All env keys: ${Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('PORT')).join(', ')}`);
     
     // If DATABASE_URL points to localhost in production, warn about it
     if (process.env.NODE_ENV === 'production' && databaseUrl?.includes('localhost')) {
-      this.logger.error('ERROR: Production build using localhost database! Check DATABASE_URL environment variable.');
+      console.error('[PrismaService] ERROR: Production build using localhost database!');
     }
   }
 
@@ -62,13 +60,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         this.logger.log('Database connected successfully');
         return;
       } catch (error) {
-        // Log detailed error info
-        this.logger.warn(`Database connection attempt ${attempt}/${maxRetries} failed:`);
-        this.logger.warn(`  Error: ${error.message}`);
-        this.logger.warn(`  Error name: ${error.name}`);
-        this.logger.warn(`  Code: ${error.code || 'N/A'}`);
-        this.logger.warn(`  Meta: ${JSON.stringify(error.meta) || '{}'}`);
-        this.logger.warn(`  Full error: ${JSON.stringify(error)}`);
+        // Log detailed error info using console.log
+        console.log(`[PrismaService] Database connection attempt ${attempt}/${maxRetries} failed:`);
+        console.log(`[PrismaService]   Error: ${error.message}`);
+        console.log(`[PrismaService]   Error name: ${error.name}`);
+        console.log(`[PrismaService]   Code: ${error.code || 'N/A'}`);
+        console.log(`[PrismaService]   Meta: ${JSON.stringify(error.meta) || '{}'}`);
         
         if (attempt < maxRetries) {
           this.logger.log(`Retrying in ${retryDelay / 1000} seconds...`);
