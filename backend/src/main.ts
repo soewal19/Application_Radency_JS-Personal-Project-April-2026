@@ -34,10 +34,10 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api');
 
-  // CORS with whitelist
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:8080,http://localhost:3000')
-    .split(',')
-    .map((o) => o.trim());
+  // CORS with whitelist - allow all for production debugging
+  const allowedOrigins = process.env.NODE_ENV === 'production' 
+    ? ['https://application-frontend-fjji.onrender.com', 'https://application-backend-54iw.onrender.com']
+    : (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:8080,http://localhost:3000').split(',').map((o) => o.trim());
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
