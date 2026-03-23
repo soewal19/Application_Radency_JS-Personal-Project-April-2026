@@ -50,6 +50,10 @@ class SocketService {
 
     this.socket.on('connect_error', (error) => {
       console.error('[Socket] Connection error:', error.message);
+      // Log more details for debugging
+      if (error.message?.includes('CORS')) {
+        console.error('[Socket] CORS error - check allowed origins');
+      }
     });
 
     // Listen for pong response from server

@@ -43,6 +43,14 @@ The project implements a cutting-edge **Multi-Agent Swarm** architecture for the
     - **Real-time Metadata**: The UI displays the active model and current token limit status for full transparency.
 - **No Hallucinations**: Uses **Function Calling** to interact with the live PostgreSQL database via WebSockets.
 
+### Ready-Made AI Skills
+
+Need more capabilities for your AI agents? Download ready-made skills from **VibeBaza**:
+
+🔗 **https://vibebaza.com** — A marketplace for AI agent skills and tools.
+
+Simply browse the skill library, download JSON configurations, and register them in your Agent Builder to extend your AI capabilities instantly!
+
 ### High-Performance WebSockets
 
 To ensure maximum responsiveness, the application has moved beyond traditional REST for interactive actions:

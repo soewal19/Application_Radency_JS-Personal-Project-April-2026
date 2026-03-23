@@ -114,10 +114,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     const token = client.handshake.auth?.token;
+    
+    // Allow connection even without token - user might not be logged in yet
     if (!token) {
-      this.logger.warn(`WS connection rejected — no token: ${client.id}`);
-      client.emit('error', { message: 'Authentication required' });
-      client.disconnect(true);
+      this.logger.log(`WS client connected without token: ${client.id}`);
+      (client as AuthenticatedSocket).user = undefined;
       return;
     }
 

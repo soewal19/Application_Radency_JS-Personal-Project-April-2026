@@ -48,16 +48,6 @@ const sections = [
     ],
   },
   {
-    icon: BrainCircuit,
-    title: 'AI Agent Builder (MLOps)',
-    content: [
-      'Create custom agents with specialized roles and prompts',
-      'Register new Skills (Tools) using JSON Schema definitions',
-      'Train agents using Knowledge Base (RAG) for specific expertise',
-      'Deploy agents directly into the AI Swarm for task delegation',
-    ],
-  },
-  {
     icon: Server,
     title: 'Architecture',
     content: [
@@ -79,6 +69,16 @@ const sections = [
       'GET /api/agents — list active AI agents',
       'POST /api/agents — create a custom agent',
       'GET /api/agents/skills — list available agent skills',
+    ],
+  },
+  {
+    icon: ExternalLink,
+    title: 'Ready-Made AI Skills',
+    content: [
+      'Need more capabilities? Visit VibeBaza skill marketplace',
+      'Browse ready-made skills at https://vibebaza.com',
+      'Download JSON configs and register in Agent Builder',
+      'Extend AI capabilities instantly with ready-made tools',
     ],
   },
 ];
