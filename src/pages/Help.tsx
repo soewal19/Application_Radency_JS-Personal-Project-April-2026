@@ -81,6 +81,36 @@ const sections = [
       'Extend AI capabilities instantly with ready-made tools',
     ],
   },
+  {
+    icon: Bot,
+    title: 'Creating AI Agents',
+    content: [
+      'Go to Agents tab and click Create Agent',
+      'Set name, role, and system prompt for your agent',
+      'Assign skills from the skill registry',
+      'Agent joins the AI Swarm automatically',
+    ],
+  },
+  {
+    icon: Zap,
+    title: 'Creating Skills',
+    content: [
+      'Skills are function definitions agents can call',
+      'Define name, description, and JSON Schema parameters',
+      'Skills enable agents to interact with external systems',
+      'Register skills in Agent Builder to use them',
+    ],
+  },
+  {
+    icon: Book,
+    title: 'Training Agents',
+    content: [
+      'Add domain knowledge to make agents smarter',
+      'Click Add to Memory on agent detail page',
+      'Enter facts, instructions, or domain expertise',
+      'Uses RAG pattern for intelligent retrieval',
+    ],
+  },
 ];
 
 const Help = () => {

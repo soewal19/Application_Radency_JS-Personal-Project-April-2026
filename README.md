@@ -181,6 +181,117 @@ See [`ci_cd/README.md`](ci_cd/README.md) for usage instructions.
 
 GitHub Actions workflows are in `.github/workflows/`.
 
+## 🤖 AI Agent System Guide
+
+### Overview
+
+EventHub features an **AI Swarm Orchestrator** that manages specialized AI agents. Each agent can have:
+- **Skills**: Tools the agent can use (function calling)
+- **Knowledge Base**: RAG (Retrieval-Augmented Generation) for domain expertise
+- **System Prompt**: Instructions defining the agent's personality and capabilities
+
+### Creating an AI Agent
+
+1. Navigate to the **Agents** tab in the navigation menu
+2. Click **Create Agent** button
+3. Fill in the following fields:
+   - **Name**: A friendly name for your agent (e.g., "Event Finder")
+   - **Role**: A description of what the agent does (e.g., "Helps users discover events")
+   - **System Prompt**: Detailed instructions for the agent's behavior (min 10 characters)
+   - **Skills** (optional): Select from available skills or create new ones
+
+Example System Prompt:
+```
+You are EventBot, a friendly assistant that helps users find and manage events. 
+You have access to a database of events and can search, filter, and provide recommendations.
+Always be helpful, concise, and friendly.
+```
+
+### Creating Skills
+
+Skills are function definitions that agents can call. To create a skill:
+
+1. Go to **Agents** → **Skills** section
+2. Click **Create Skill**
+3. Fill in the JSON schema:
+
+```json
+{
+  "name": "getWeather",
+  "description": "Get current weather for a city",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "city": { "type": "string", "description": "City name" }
+    },
+    "required": ["city"]
+  }
+}
+```
+
+**Skill Fields:**
+- **Name**: Unique identifier (e.g., `searchEvents`, `createEvent`)
+- **Description**: What the skill does (used by LLM to decide when to call it)
+- **Parameters**: JSON Schema defining input parameters
+- **Source URL** (optional): For third-party API integrations
+
+### Training Your Agent (Knowledge Base)
+
+To make your agent knowledgeable about specific topics:
+
+1. Open your agent in the **Agents** tab
+2. Click **Add to Memory**
+3. Enter knowledge content (facts, instructions, domain knowledge)
+
+Example Knowledge entries:
+- "Our annual tech conference is held in Berlin every June"
+- "VIP tickets include backstage access and lunch with speakers"
+- "The venue has wheelchair access and free parking"
+
+The agent will use this knowledge when responding to relevant queries (RAG pattern).
+
+### Using Your Agent
+
+Once created, your agent is automatically integrated into the AI Swarm:
+
+1. **Direct Chat**: Open AI Assistant and your agent may respond
+2. **Task Delegation**: The Master Orchestrator delegates tasks based on user intent
+3. **Event Pages**: Each event has an AI Concierge that knows event details
+
+### API Endpoints for Agents
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/agents` | List all agents |
+| POST | `/api/agents` | Create new agent |
+| DELETE | `/api/agents/:id` | Delete agent |
+| GET | `/api/agents/skills` | List all available skills |
+| POST | `/api/agents/skills` | Create new skill |
+| POST | `/api/agents/:id/knowledge` | Add knowledge to agent |
+
+### Example: Creating an Agent via API
+
+```bash
+curl -X POST https://application-backend-54iw.onrender.com/api/agents \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "name": "Event Finder",
+    "role": "Event Discovery Specialist",
+    "systemPrompt": "You are an expert at finding events based on user preferences. Ask clarifying questions and provide personalized recommendations.",
+    "skillIds": ["skill-id-1", "skill-id-2"]
+  }'
+```
+
+### Ready-Made Skills from VibeBaza
+
+Download pre-built skills from **https://vibebaza.com** to extend your agents instantly:
+
+1. Browse the skill marketplace at https://vibebaza.com
+2. Download skill JSON configuration
+3. Register the skill in Agent Builder
+4. Assign to your agent
+
 ## 📊 SOLID Principles
 
 Applied throughout the architecture. See [docs/](docs/) for details.
