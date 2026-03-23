@@ -48,7 +48,7 @@ const EventsList = () => {
     searchQuery, categoryFilter, tagFilters, setupSocketListeners,
   } = useEventStore();
 
-  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<{id: string; name: string}[]>([]);
   const [tagLoading, setTagLoading] = useState(false);
 
   useEffect(() => {
@@ -121,21 +121,21 @@ const EventsList = () => {
             <span className="text-xs text-muted-foreground">Loading tags…</span>
           ) : (
             availableTags.map((tag) => {
-              const active = tagFilters.includes(tag);
+              const active = tagFilters.includes(tag.name);
               return (
                 <Button
-                  key={tag}
+                  key={tag.id}
                   size="sm"
                   variant={active ? 'default' : 'outline'}
                   onClick={() => {
                     const next = active
-                      ? tagFilters.filter((t) => t !== tag)
-                      : [...tagFilters, tag];
+                      ? tagFilters.filter((t) => t !== tag.name)
+                      : [...tagFilters, tag.name];
                     setTagFilters(next);
                   }}
                   className="text-[11px]"
                 >
-                  {tag}
+                  {tag.name}
                 </Button>
               );
             })
