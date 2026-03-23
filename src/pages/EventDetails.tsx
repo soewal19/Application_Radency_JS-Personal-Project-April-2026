@@ -199,10 +199,11 @@ const EventDetails = () => {
       });
       setShowRegisterSomeoneDialog(false);
       setRegisterEmail('');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Make sure the user email is correct and they are not already registered.';
       toast({ 
         title: 'Registration Failed', 
-        description: error.message || 'Make sure the user email is correct and they are not already registered.', 
+        description: message, 
         variant: 'destructive' 
       });
     } finally {
