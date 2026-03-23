@@ -2,12 +2,11 @@
 # https://render.com/docs/blueprint-spec
 
 databases:
-  - name: application-db
+  - name: eventhub-db
     plan: free
-    databaseName: application_radency
-    user: applicationdb_4xkt_user
+    databaseName: eventhub
+    user: eventhub
     postgresMajorVersion: "15"
-    # Note: Database already created manually with these exact credentials
 
 services:
   # Backend (NestJS API)
@@ -27,7 +26,9 @@ services:
       - key: PORT
         value: "3000"
       - key: DATABASE_URL
-        value: "postgresql://admin:mi9hdAwbJJNbsVEbDWGDDkLz8UOJkmBp@dpg-d6s7bgshg0os73f1ppm0-a/application_radency"
+        fromDatabase:
+          name: eventhub-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
       - key: ALLOWED_ORIGINS
