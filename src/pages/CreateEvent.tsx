@@ -67,7 +67,9 @@ const CreateEvent = () => {
   const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
-    fetchTags();
+    if (availableTags.length === 0) {
+      fetchTags();
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
