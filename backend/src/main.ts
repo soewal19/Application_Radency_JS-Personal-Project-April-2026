@@ -5,6 +5,16 @@
  * Reference: https://dou.ua/forums/topic/48951/ — NestJS perf best practices
  */
 
+// CRITICAL: Ensure production DATABASE_URL from Render takes precedence
+// This must happen BEFORE any other imports that might load .env
+if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  // The DATABASE_URL from Render should already be in env, but verify it's not localhost
+  if (process.env.DATABASE_URL.includes('localhost')) {
+    console.error('FATAL: Production mode using localhost DATABASE_URL!');
+    process.exit(1);
+  }
+}
+
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ValidationPipe, Logger } from '@nestjs/common';
