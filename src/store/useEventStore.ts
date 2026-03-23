@@ -111,10 +111,14 @@ export const useEventStore = create<EventState>()((set, get) => ({
         category: params?.category ?? categoryFilter,
         tags: params?.tags ?? get().tagFilters,
       });
+      
+      // Only use mock data if the API returned absolutely nothing AND we are not searching/filtering
+      const shouldShowMocks = response.total === 0 && !searchQuery && !categoryFilter && get().tagFilters.length === 0;
+      
       set({
-        events: response.data.length > 0 ? response.data : ALL_MOCK_EVENTS,
-        total: response.total > 0 ? response.total : ALL_MOCK_EVENTS.length,
-        totalPages: response.totalPages,
+        events: shouldShowMocks ? ALL_MOCK_EVENTS.slice(0, PAGE_SIZE) : response.data,
+        total: shouldShowMocks ? ALL_MOCK_EVENTS.length : response.total,
+        totalPages: shouldShowMocks ? Math.ceil(ALL_MOCK_EVENTS.length / PAGE_SIZE) : response.totalPages,
         page: response.page,
         isLoading: false,
       });
@@ -318,13 +322,19 @@ export const useEventStore = create<EventState>()((set, get) => ({
 
   setupSocketListeners: () => {
     socketService.on('event:created', (event) => {
-      set((state) => ({ 
-        events: [event, ...state.events].slice(0, PAGE_SIZE),
-        // Requirement 1: If the current user is the organizer, add to myEvents
-        myEvents: event.organizerId === state.myEvents[0]?.organizerId 
-          ? [event, ...state.myEvents] 
-          : state.myEvents
-      }));
+      set((state) => {
+        // Prevent duplication if the event was already added via optimistic update
+        const exists = state.events.some(e => e.id === event.id);
+        if (exists) return state;
+
+        return { 
+          events: [event, ...state.events].slice(0, PAGE_SIZE),
+          // Requirement 1: If the current user is the organizer, add to myEvents
+          myEvents: event.organizerId === state.myEvents[0]?.organizerId 
+            ? [event, ...state.myEvents] 
+            : state.myEvents
+        };
+      });
     });
     socketService.on('event:updated', (event) => {
       set((state) => ({

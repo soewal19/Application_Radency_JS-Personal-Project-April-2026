@@ -13,17 +13,17 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // Create test user
-  const hashedPassword = await bcrypt.hash('Test123!', 12);
+  const hashedPassword = await bcrypt.hash('Test1234', 12);
   const testUser = await prisma.user.upsert({
-    where: { email: 'test@eventhub.com' },
+    where: { email: 'testuser@test.com' },
     update: {},
     create: {
-      email: 'test@eventhub.com',
+      email: 'testuser@test.com',
       name: 'Test User',
       password: hashedPassword,
     },
   });
-  console.log(`✅ Test user: ${testUser.email} / Test123!`);
+  console.log(`✅ Test user: ${testUser.email} / Test1234`);
 
   // Create sample events
   const categories = ['conference', 'workshop', 'meetup', 'webinar', 'social', 'sport', 'music', 'art', 'food', 'tech'];

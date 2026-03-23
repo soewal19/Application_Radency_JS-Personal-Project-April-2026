@@ -14,8 +14,8 @@ import { socketService } from '@/services/socket';
 import { logger } from '@/lib/logger';
 
 const TEST_ACCOUNT = {
-  email: 'test@eventhub.com',
-  password: 'Test123!',
+  email: 'testuser@test.com',
+  password: 'Test1234',
   name: 'Test User',
 };
 
