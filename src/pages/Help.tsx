@@ -58,7 +58,7 @@ const sections = [
     ],
   },
   {
-    icon: Code,
+    icon: ExternalLink,
     title: 'API Documentation',
     content: [
       'GET /api/events — list events (pagination, filters)',
@@ -69,6 +69,7 @@ const sections = [
       'GET /api/agents — list active AI agents',
       'POST /api/agents — create a custom agent',
       'GET /api/agents/skills — list available agent skills',
+      'Swagger docs at https://application-backend-54iw.onrender.com/api/docs',
     ],
   },
   {
