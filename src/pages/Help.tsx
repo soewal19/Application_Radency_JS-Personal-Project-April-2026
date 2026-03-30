@@ -52,7 +52,7 @@ const sections = [
     title: 'Architecture',
     content: [
       'Frontend: React 18 + TypeScript + Zustand + Tailwind CSS',
-      'Backend: NestJS + Prisma + SQLite (Local) / PostgreSQL (Prod)',
+      'Backend: NestJS + Prisma + SQLite',
       'Real-time data updates via Socket.IO',
       'AI Swarm architecture for intelligent request handling',
     ],

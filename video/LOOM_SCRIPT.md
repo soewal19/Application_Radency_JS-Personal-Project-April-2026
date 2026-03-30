@@ -26,7 +26,7 @@
 >
 > On the **Backend**:
 > - NestJS with Fastify adapter
-> - Prisma ORM with PostgreSQL
+> - Prisma ORM with SQLite
 > - Passport.js with JWT strategy (access token 1h + refresh token 7 days)
 > - Socket.IO for real-time events
 > - Swagger for API documentation

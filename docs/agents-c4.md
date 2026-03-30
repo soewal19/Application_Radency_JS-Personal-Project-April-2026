@@ -9,7 +9,7 @@ graph LR
     User((User))
     EventHub[EventHub Platform]
     LLM[LLM Provider\nGroq / OpenAI]
-    DB[(Database\nPrisma + SQLite/PostgreSQL)]
+    DB[(Database\nPrisma + SQLite)]
 
     User <-->|HTTP/WS| EventHub
     EventHub <-->|API Calls| LLM

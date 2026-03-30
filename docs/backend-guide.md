@@ -4,7 +4,7 @@
 
 The backend is built with NestJS 10 using:
 - **Fastify** adapter (3x faster than Express — see [DOU article](https://dou.ua/forums/topic/48951/))
-- **Prisma ORM** + PostgreSQL (replaces TypeORM)
+- **Prisma ORM** + SQLite (replaces TypeORM)
 - **Passport JWT** for authentication
 - **Socket.IO** for WebSocket real-time communication
 - **Swagger** for API documentation

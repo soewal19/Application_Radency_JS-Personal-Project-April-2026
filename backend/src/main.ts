@@ -60,7 +60,7 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger API documentation
+  // Swagger API documentation - setup before listening
   const config = new DocumentBuilder()
     .setTitle('EventHub API')
     .setDescription(
@@ -74,7 +74,7 @@ async function bootstrap() {
       `- **Real-time**: Socket.IO WebSocket notifications\n` +
       `- **Validation**: class-validator DTOs with strict whitelist\n\n` +
       `### Tech Stack\n` +
-      `NestJS 10 + Fastify · Prisma ORM · SQLite/PostgreSQL · Passport JWT · Socket.IO`
+      `NestJS 10 + Fastify · Prisma ORM · SQLite · Passport JWT · Socket.IO`
     )
     .setVersion('1.0.0')
     .setContact('EventHub Team', '', 'admin@eventhub.com')
@@ -91,6 +91,8 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  
+  // Setup Swagger UI at /api/docs (works with global prefix)
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,

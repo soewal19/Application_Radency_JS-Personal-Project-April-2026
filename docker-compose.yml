@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  # PostgreSQL
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: eventhub
-    ports:
-      - '5432:5432'
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   # Backend (NestJS)
   backend:
     build:
@@ -27,16 +10,11 @@ services:
       - '3000:3000'
     environment:
       NODE_ENV: production
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: eventhub
+      DATABASE_URL: file:./prisma/dev.db
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       ALLOWED_ORIGINS: http://localhost,http://localhost:80
-    depends_on:
-      db:
-        condition: service_healthy
+    volumes:
+      - db-data:/app/backend/prisma
 
   # Frontend (React + Nginx)
   frontend:
@@ -49,4 +27,4 @@ services:
       - backend
 
 volumes:
-  pgdata:
+  db-data:

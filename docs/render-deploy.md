@@ -11,7 +11,7 @@
 2. Click **New** → **Blueprint**
 3. Connect your repository
 4. Render will detect `render.yaml` and provision:
-   - PostgreSQL database (`eventhub-db`)
+   - SQLite database (`eventhub-db`)
    - Backend web service (`eventhub-backend`)
    - Frontend static site (`eventhub-frontend`)
 5. After deployment, set `ALLOWED_ORIGINS` on the backend:
@@ -25,12 +25,10 @@
 
 ## Option 2: Manual Setup
 
-### 1. Create PostgreSQL Database
+### 1. Create SQLite Database
 
-- Go to **New** → **PostgreSQL**
-- Name: `eventhub-db`
-- Plan: Free
-- PostgreSQL version: 16
+- SQLite is file-based, no separate database service needed
+- SQLite database file will be created automatically
 
 ### 2. Deploy Backend
 
@@ -71,7 +69,7 @@
 If you see these errors after deployment, check the following:
 
 1. **Backend Environment Variables**:
-   - `DATABASE_URL`: Must be a valid PostgreSQL connection string (e.g., `postgresql://...`).
+   - `DATABASE_URL`: Must be a valid SQLite connection string (e.g., `postgresql://...`).
    - `ALLOWED_ORIGINS`: Must include your frontend URL (e.g., `https://your-frontend.onrender.com`). No trailing slashes!
    - `JWT_SECRET`: Must be set.
 

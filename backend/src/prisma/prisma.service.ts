@@ -42,7 +42,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   }
 
   async onModuleInit() {
-    this.logger.log('Connecting to PostgreSQL via Prisma...');
+    this.logger.log('Connecting to SQLite via Prisma...');
     
     // Log database connection info (masked for security)
     const dbUrl = process.env.DATABASE_URL || 'NOT_SET';

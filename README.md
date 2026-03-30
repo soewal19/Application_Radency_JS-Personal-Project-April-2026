@@ -41,7 +41,7 @@ The project implements a cutting-edge **Multi-Agent Swarm** architecture for the
     - **Model Rotation**: Automatic fallback between a pool of models (`llama-3.3-70b` → `llama-3.1-70b` → `llama-3.1-8b`) when hitting rate limits (Error 429).
     - **Hierarchical Fallback**: If all Groq models are exhausted, the system automatically routes requests to OpenAI (`gpt-4o-mini`).
     - **Real-time Metadata**: The UI displays the active model and current token limit status for full transparency.
-- **No Hallucinations**: Uses **Function Calling** to interact with the live PostgreSQL database via WebSockets.
+- **No Hallucinations**: Uses **Function Calling** to interact with the live SQLite database via WebSockets.
 
 ### Ready-Made AI Skills
 
@@ -64,7 +64,7 @@ To ensure maximum responsiveness, the application has moved beyond traditional R
 | Frontend | Backend |
 |---|---|
 | React 18, Vite, TypeScript | NestJS 10, Fastify |
-| Zustand, React Router v6 | Prisma ORM, PostgreSQL |
+| Zustand, React Router v6 | Prisma ORM, SQLite |
 | Tailwind CSS, Framer Motion | Passport JWT, Socket.IO (WS) |
 | Recharts, Sonner, Zod | Groq SDK (Llama 3.3 70B) |
 | Lucide React, Google Charts | OpenAI SDK (GPT-4o) |
@@ -73,7 +73,7 @@ To ensure maximum responsiveness, the application has moved beyond traditional R
 ## 🏗 Architecture
 
 ```
-[Browser] ←→ [React SPA :5173] ←REST/WS→ [NestJS API :3000] ←→ [PostgreSQL :5432]
+[Browser] ←→ [React SPA :5173] ←REST/WS→ [NestJS API :3000] ←→ [SQLite :dev.db]
 ```
 
 Detailed C4 diagram: [docs/C4.md](docs/C4.md)
@@ -89,7 +89,7 @@ Detailed C4 diagram: [docs/C4.md](docs/C4.md)
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL 16 (or use Docker)
+- SQLite (included, no separate installation needed)
 
 ### Option 1: Manual Setup
 
@@ -121,7 +121,7 @@ API will be available at: `http://localhost:3000`
 docker-compose up -d
 ```
 
-This starts PostgreSQL, the NestJS backend, and the React frontend served via Nginx.
+This starts the NestJS backend and the React frontend served via Nginx (SQLite is used by default).
 
 ## 🧪 Testing
 

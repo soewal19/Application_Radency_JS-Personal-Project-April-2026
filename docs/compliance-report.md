@@ -30,7 +30,7 @@
 | 1 | NestJS 10 | ✅ | Модульная архитектура |
 | 2 | Fastify адаптер | ✅ | ~3x быстрее Express (статья DOU) |
 | 3 | Prisma ORM | ✅ | Заменяет TypeORM, миграции, seed |
-| 4 | PostgreSQL | ✅ | Prisma schema + миграции |
+| 4 | SQLite | ✅ | Prisma schema + миграции |
 | 5 | JWT аутентификация | ✅ | Access 24h + Refresh 7d |
 | 6 | Swagger документация | ✅ | `/api/docs` с полными описаниями |
 | 7 | WebSocket (Socket.IO) | ✅ | Real-time события |
